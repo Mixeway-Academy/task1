@@ -24,7 +24,7 @@ class Book(db.Model):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
 
     @validates('name')
-    def validate_name(self, key, value):
+    def validate_name(self, _, value):
         regex = r"^[A-Za-z0-9\s]*$"
 
         if not re.match(regex, value):
@@ -32,7 +32,7 @@ class Book(db.Model):
         return value
 
     @validates('author')
-    def validate_author(self, key, value):
+    def validate_author(self, _, value):
         regex = r"^[A-Za-z\s]*$"
 
         if not re.match(regex, value):

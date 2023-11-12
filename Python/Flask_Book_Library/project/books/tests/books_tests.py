@@ -3,10 +3,10 @@ from project.books.models import Book
 
 
 class BooksTestsMethods(unittest.TestCase):
-    def test_book_name_valid(self):
-        book = Book("Buszujący w Zbożu", "Jerome David Salinger", 1951, "Type")
-        self.assertEquals(book.name, "Buszujący w Zbożu")
-        self.assertEquals(book.author, "Jerome David Salinger")
+    def test_book_valid(self):
+        book = Book("The Catcher in the Rye", "Jerome David Salinger", 1951, "Type")
+        self.assertEqual(book.name, "The Catcher in the Rye")
+        self.assertEqual(book.author, "Jerome David Salinger")
 
     def test_book_name_invalid(self):
         with self.assertRaises(ValueError):
@@ -14,4 +14,4 @@ class BooksTestsMethods(unittest.TestCase):
 
     def test_book_author_invalid(self):
         with self.assertRaises(ValueError):
-            Book("Buszujący w Zbożu", "<script>alert('XSS')</script>", 1951, "Type")
+            Book("The Catcher in the Rye", "<script>alert('XSS')</script>", 1951, "Type")

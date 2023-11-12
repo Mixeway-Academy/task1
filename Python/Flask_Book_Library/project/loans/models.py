@@ -29,19 +29,27 @@ class Loan(db.Model):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"
 
     @validates('customer_name')
-    def validate_username(self, key, value):
-        regex = r"^[A-Za-z0-9]*$"
+    def validate_customer_name(self, _, value):
+        regex = r"^[A-Za-z\s]*$"
 
         if not re.match(regex, value):
-            raise ValueError("The only allowed characters in \"Name\" field are: alphanumeric characters")
+            raise ValueError("The only allowed characters in \"Customer Name\" field are: alphabetic characters")
         return value
 
     @validates('book_name')
-    def validate_city(self, key, value):
+    def validate_book_name(self, _, value):
         regex = r"^[A-Za-z0-9\s]*$"
 
         if not re.match(regex, value):
-            raise ValueError("The only allowed characters in \"City\" field are: alphanumeric characters, spaces")
+            raise ValueError("The only allowed characters in \"Book Name\" field are: alphanumeric characters, spaces")
+        return value
+
+    @validates('original_author')
+    def validate_original_author(self, _, value):
+        regex = r"^[A-Za-z\s]*$"
+
+        if not re.match(regex, value):
+            raise ValueError("The only allowed characters in \"Author\" field are: alphanumeric characters, spaces")
         return value
 
 

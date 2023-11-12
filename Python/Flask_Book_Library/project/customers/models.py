@@ -20,15 +20,15 @@ class Customer(db.Model):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"
 
     @validates('name')
-    def validate_username(self, key, value):
-        regex = r"^[A-Za-z0-9]*$"
+    def validate_name(self, _, value):
+        regex = r"^[A-Za-z\s]*$"
 
         if not re.match(regex, value):
-            raise ValueError("The only allowed characters in \"Name\" field are: alphanumeric characters")
+            raise ValueError("The only allowed characters in \"Name\" field are: alphabetic characters, spaces")
         return value
 
     @validates('city')
-    def validate_city(self, key, value):
+    def validate_city(self, _, value):
         regex = r"^[A-Za-z\s]*$"
 
         if not re.match(regex, value):
