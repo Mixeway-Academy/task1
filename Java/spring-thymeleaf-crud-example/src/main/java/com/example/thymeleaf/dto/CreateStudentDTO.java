@@ -3,7 +3,14 @@ package com.example.thymeleaf.dto;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-
+// import org.springframework.web.util.HtmlUtils;
+// import org.springframework.beans.factory.annotation.Required;
+import org.hibernate.validator.constraints.SafeHtml;
+// @Getter(AccessLevel.NONE)
+// @Required
+// public void setName(String name) {
+//     this.name = HtmlUtils.htmlEscape(name);
+// }
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -13,6 +20,7 @@ import java.time.LocalDate;
 @Setter
 public class CreateStudentDTO {
 
+    @SafeHtml(WhiteListType.NONE, message = "HTML not allowed in input")
     @NotEmpty(message = "{NotEmpty.name}")
     private String name;
 
