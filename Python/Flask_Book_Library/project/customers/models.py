@@ -1,4 +1,6 @@
 from project import db, app
+from sqlalchemy.orm import validates
+import re
 
 
 # Customer model
@@ -16,6 +18,22 @@ class Customer(db.Model):
 
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"
+
+    @validates('name')
+    def validate_username(self, key, value):
+        regex = r"^[A-Za-z0-9]*$"
+
+        if not re.match(regex, value):
+            raise ValueError("The only allowed characters in \"Name\" field are: alphanumeric characters")
+        return value
+
+    @validates('city')
+    def validate_city(self, key, value):
+        regex = r"^[A-Za-z\s]*$"
+
+        if not re.match(regex, value):
+            raise ValueError("The only allowed characters in \"City\" field are: alphabetic characters, spaces")
+        return value
 
 
 with app.app_context():
