@@ -1,3 +1,4 @@
+# Adrian Florkowski
 ## Opis zadania
 
 Zadanie polega na zdefiniowaniu modelu systemu bankowego: wyróżnieniu kontekstów, agregat, encji i obiektów wartości.
