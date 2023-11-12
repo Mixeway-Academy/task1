@@ -13,7 +13,15 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+        if len(name) < 3 and len(name) > 64:
+            raise ValueError('Name should have length between 3 and 64 characters!')
+        if re.fullmatch(r'[\w\s:\-,]+', name) is None:
+            raise ValueError('Inappropriate symbol used: Name should contain only letters, digits, spaces, hyphens, commas and colons!')
         self.name = name
+        if len(author) < 3 and len(author) > 64:
+            raise ValueError('Author should have length between 3 and 64 characters!')
+        if re.fullmatch(r'[\w\s:\-,]+', author) is None:
+            raise ValueError('Inappropriate symbol used: Author should contain only letters, digits, spaces, hyphens, commas and colons!')
         self.author = author
         self.year_published = year_published
         self.book_type = book_type
