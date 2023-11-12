@@ -13,7 +13,7 @@ Na poniższym rysunku przedstawiono wysokopoziomowy model systemu z wyróżniony
 
 Każdy kontekst posiada:
 
-- agregaty (zaznaczone kolorem czerwonym)
+- agregaty (z rootami zaznaczonymi kolorem czerwonym)
 - encje (zaznaczone kolorem fioletowym),
 - obiekty wartości (zaznaczone kolorem szarym)
 
