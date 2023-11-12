@@ -4,7 +4,7 @@ Celem zadania jest zamodelowanie bezpiecznej aplikacji bankowej (fragmentu) wyko
 
 W zadaniu opisano fragment systemu odpowiedzialny za podstawowe transakcje bankowe - jednorazowy przelew oraz cykliczny przelew. Rozpisano 5 encji - osoby, konta bankowego, karty kredytowej oraz przelewu i cyklicznego przelewu.
 
-![Schema](TBO1 schemat.png)
+![Schema](./TBO1%20schemat.png)
 
 Validations:
 
