@@ -1,5 +1,7 @@
-from project import db, app
 import re
+
+from flask import escape
+from project import app, db
 
 
 # Book model
@@ -13,8 +15,8 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        self.name = escape(name)
+        self.author = escape(author)
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
