@@ -13,6 +13,9 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+        self._validate_input_value(name)
+        self._validate_input_value(author)
+
         self.name = name
         self.author = author
         self.year_published = year_published
@@ -21,7 +24,10 @@ class Book(db.Model):
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
-
-
+    
+    def _validate_input_value(self, value):
+        if not re.match("^[a-zA-Z ]{1,50}$", value):
+            raise ValueError("Name and author must both contain only letters and be at most 50 characters long.")
+        
 with app.app_context():
     db.create_all()
