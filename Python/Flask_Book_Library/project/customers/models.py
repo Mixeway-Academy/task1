@@ -1,3 +1,4 @@
+import re
 from project import db, app
 
 
@@ -10,6 +11,13 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
+
+        if not re.match("^[a-zA-Z\-\s()'\"?!,./]{1,150}$", name):
+            raise ValueError("Name field can only consist of letters, numbers and selected special characters and its length must be in the range [1, 150]")
+        
+        if not re.match("^[a-zA-Z\-\s()'\"?!,./]{1,150}$", city):
+            raise ValueError("City field can only consist of letters, numbers and selected special characters and its length must be in the range [1, 150]")
+        
         self.name = name
         self.city = city
         self.age = age

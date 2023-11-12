@@ -13,6 +13,13 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+
+        if not re.match("[a-zA-Z\-\s()'\"?!,./]{1,150}", name):
+            raise ValueError("Name field can only consist of letters, numbers and selected special characters and its length must be in the range [1, 150]")
+        
+        if not re.match("[a-zA-Z\-\s()'\"?!,./]{1,150}", author):
+            raise ValueError("Author field can only consist of letters, numbers and selected special characters and its length must be in the range [1, 150]")
+
         self.name = name
         self.author = author
         self.year_published = year_published

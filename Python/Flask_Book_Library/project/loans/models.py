@@ -1,3 +1,4 @@
+import re
 from project import db , app
 
 
@@ -15,6 +16,13 @@ class Loan(db.Model):
     original_book_type = db.Column(db.String(64), nullable=False)
 
     def __init__(self, customer_name, book_name, loan_date, return_date, original_author, original_year_published, original_book_type):
+
+        if not re.match("^[a-zA-Z\-\s()'\"?!,./]{1,150}$", customer_name):
+            raise ValueError("customer_name field can only consist of letters, numbers and selected special characters and its length must be in the range [1, 150]")
+        
+        if not re.match("^[a-zA-Z\-\s()'\"?!,./]{1,150}$", book_name):
+            raise ValueError("book_name field can only consist of letters, numbers and selected special characters and its length must be in the range [1, 150]")
+
         self.customer_name = customer_name
         self.book_name = book_name
         self.loan_date = loan_date
