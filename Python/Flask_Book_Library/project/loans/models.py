@@ -1,7 +1,6 @@
-from project import db , app
+from project import db, app
 
-
-# Loan model
+# Model Pożyczki
 class Loan(db.Model):
     __tablename__ = 'Loans'
 
@@ -15,6 +14,20 @@ class Loan(db.Model):
     original_book_type = db.Column(db.String(64), nullable=False)
 
     def __init__(self, customer_name, book_name, loan_date, return_date, original_author, original_year_published, original_book_type):
+        # Walidacja nazwy klienta
+        if not 1 <= len(customer_name) <= 64:
+            raise ValueError("Nazwa klienta musi mieć od 1 do 64 znaków.")
+        
+        if any(char in "!@#$%^&*()_+=[]{};:'\"<>,./?\\|" for char in customer_name):
+            raise ValueError("Nazwa klienta zawiera niedozwolone znaki.")
+
+        # Walidacja nazwy książki
+        if not 1 <= len(book_name) <= 64:
+            raise ValueError("Nazwa książki musi mieć od 1 do 64 znaków.")
+        
+        if any(char in "!@#$%^&*()_+=[]{};:'\"<>,./?\\|" for char in book_name):
+            raise ValueError("Nazwa książki zawiera niedozwolone znaki.")
+
         self.customer_name = customer_name
         self.book_name = book_name
         self.loan_date = loan_date
@@ -25,7 +38,6 @@ class Loan(db.Model):
 
     def __repr__(self):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"
-
 
 with app.app_context():
     db.create_all()
