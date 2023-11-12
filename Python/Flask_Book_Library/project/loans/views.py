@@ -59,8 +59,17 @@ def create_loan():
         # Check if the book is available
         book = Book.query.filter_by(name=book_name, status='available').first()
         if not book:
+            if not Book.query.filter_by(name=book_name).first():
+                print('Error. Book does not exist.')
+                return jsonify({'error': 'Book does not exist.'}), 400
             print('Error. Book not available for loan.')
             return jsonify({'error': 'Book not available for loan.'}), 400
+
+        # Check if the customer exists
+        customer = Customer.query.filter_by(name=customer_name).first()
+        if not customer:
+            print('Error. Customer does not exist.')
+            return jsonify({'error': 'Customer does not exist.'}), 400
 
         try:
             # Create a new loan and store original book details
