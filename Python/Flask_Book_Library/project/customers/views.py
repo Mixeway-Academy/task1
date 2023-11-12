@@ -85,8 +85,8 @@ def edit_customer(customer_id):
         data = request.form
 
         # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
+        customer._update_name(data['name'])
+        customer._update_city(data['city'])
         customer.age = data['age']
 
         # Commit the changes to the database

@@ -63,8 +63,8 @@ def edit_book(book_id):
         data = request.get_json()
         
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
+        book._update_name(data.get('name', book.name))  # Update if data exists, otherwise keep the same
+        book._update_author(data.get('author', book.author))
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
         
