@@ -2,7 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
-
+import re
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
@@ -52,7 +52,7 @@ def create_book():
 def edit_book(book_id):
     # Get the book with the given ID
     book = Book.query.get(book_id)
-    
+
     # Check if the book exists
     if not book:
         print('Book not found')
@@ -61,13 +61,35 @@ def edit_book(book_id):
     try:
         # Get data from the request as JSON
         data = request.get_json()
-        
+
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
-        book.year_published = data.get('year_published', book.year_published)
+        # W przeciwieństwie do 'Customers' tutaj przy zamiast sanityzacji, aktualizacja będzie blokowana poprzez wyrzucenie błędu.
+        name = data.get('name', book.name)
+        author = data.get('author', book.author)
+        year_published = data.get('year_published', book.year_published)
+
+        if len(name) > 64:
+            raise ValueError("Too long author.")
+
+        if not re.match(r'^[A-Za-z0-9\s!@#$%&*_\-+=,.:;\'"€]*$', name): #Regex matchujący litery, cyfry, spację i znaki, które mogą się znaleźć w tytułach 'niszowych(?)', np. $, € w ekonomii
+            raise ValueError("Invalid characters in Name.")
+
+        if len(author) > 64:
+            raise ValueError("Too long author.")
+
+        if  not re.match(r'^[A-Za-z\s-]*$', author): #Regex na litery małe, duże, spację i -
+            raise ValueError("Author name must contain only letters and spaces.")
+
+        if int(year_published) < 1700:
+            raise ValueError("It belongs in a museum!")
+        if int(year_published) > 2100:
+            raise ValueError("Woah! You must be a time traveller! Where've you parked your DeLorean?")
+
+        book.name = name  # Update if data exists, otherwise keep the same
+        book.author = author
+        book.year_published = year_published
         book.book_type = data.get('book_type', book.book_type)
-        
+
         # Commit the changes to the database
         db.session.commit()
         print('Book edited successfully')
@@ -84,7 +106,7 @@ def edit_book(book_id):
 def get_book_for_edit(book_id):
     # Get the book with the given ID
     book = Book.query.get(book_id)
-    
+
     # Check if the book exists
     if not book:
         print('Book not found')
@@ -97,7 +119,7 @@ def get_book_for_edit(book_id):
         'year_published': book.year_published,
         'book_type': book.book_type
     }
-    
+
     return jsonify({'success': True, 'book': book_data})
 
 

@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
-
+import re
 
 # Blueprint for customers
 customers = Blueprint('customers', __name__, template_folder='templates', url_prefix='/customers')
@@ -85,9 +85,17 @@ def edit_customer(customer_id):
         data = request.form
 
         # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
-        customer.age = data['age']
+        #Dla 'Customers' zróbmy sanityzację danych przy aktualizacji, bez żadnych errorów.
+        #Druga opcja z wykorzystaniem 'RaiseError', też możliwa, zaimplementowana została przy aktualizacji 'Books'
+        name = data['name'][:64]
+        name = re.sub(r'[^A-Za-z\s-]', '', name)
+        city = data['city'][:64]
+        city = re.sub(r'[^A-Za-z\s-]', '', city)
+        age = str(abs(int(data['age'])))
+
+        customer.name = name
+        customer.city = city
+        customer.age = age
 
         # Commit the changes to the database
         db.session.commit()
