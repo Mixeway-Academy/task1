@@ -13,6 +13,14 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+        if len(name) < 5 or len(name) > 80:
+            raise ValueError('Name must be between 5 and 80 characters')
+        if len(author) < 5 or len(author) > 50:
+            raise ValueError('Author must be between 5 and 50 characters')
+        if name and not re.match("^[a-zA-Z0-9 -]*$", name):
+            raise ValueError('Name must contain only letters, numbers and spaces')
+        if author and not re.match("^[a-zA-Z ]*$", author):
+            raise ValueError('Author must contain only letters and spaces')
         self.name = name
         self.author = author
         self.year_published = year_published
