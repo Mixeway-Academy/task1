@@ -1,10 +1,12 @@
-from flask import render_template, Blueprint, request, redirect, url_for, jsonify
+from flask import render_template, Blueprint, request, redirect, url_for, jsonify, escape
+from pydantic import BaseModel, ValidationError, constr, conint
+
 from project import db
 from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
-
+from project.common.form_models import LoanModel
 
 # Blueprint for loans
 loans = Blueprint('loans', __name__, template_folder='templates', url_prefix='/loans')
@@ -42,19 +44,13 @@ def list_loans():
     print('Loans page accessed')
     return render_template('loans.html', loans=loans, form=CreateLoan())
 
-
 # Route to handle loan creation form
 @loans.route('/create', methods=['POST'])
 def create_loan():
     form = CreateLoan()
 
     if request.method == 'POST':
-        
-        # Process form submission
-        customer_name = form.customer_name.data
-        book_name = form.book_name.data
-        loan_date = form.loan_date.data
-        return_date = form.return_date.data
+        book_name = escape(form.book_name.data)
 
         # Check if the book is available
         book = Book.query.filter_by(name=book_name, status='available').first()
@@ -63,12 +59,22 @@ def create_loan():
             return jsonify({'error': 'Book not available for loan.'}), 400
 
         try:
+            loan = LoanModel(
+                customer_name=escape(form.customer_name.data),
+                book_name=book_name,
+                loan_date=escape(form.loan_date.data),
+                return_date=escape(form.return_date.data),
+                original_author=book.author,
+                original_year_published=book.year_published,
+                original_book_type=book.book_type
+            )
+
             # Create a new loan and store original book details
             new_loan = Loan(
-                customer_name=customer_name,
-                book_name=book_name,
-                loan_date=loan_date,
-                return_date=return_date,
+                customer_name=loan.customer_name,
+                book_name=loan.book_name,
+                loan_date=loan.loan_date,
+                return_date=loan.return_date,
                 original_author=book.author,
                 original_year_published=book.year_published,
                 original_book_type=book.book_type
@@ -85,6 +91,9 @@ def create_loan():
 
             # Redirect to the list of loans
             return redirect(url_for('loans.list_loans'))
+        except ValidationError as e:
+            print('Invalid form data')
+            return jsonify({'error': 'Invalid form data', 'details': e.errors()}), 400
         except Exception as e:
             db.session.rollback()
             error_message = f'Error creating loan: {str(e)}'
@@ -145,7 +154,7 @@ def delete_loan(loan_id):
             author=loan.original_author,
             year_published=loan.original_year_published,
             book_type=loan.original_book_type,
-            status='available'  
+            status='available'
         )
 
         # Add the book to the database
