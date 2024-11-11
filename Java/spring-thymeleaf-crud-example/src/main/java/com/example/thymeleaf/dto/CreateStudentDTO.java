@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 @Getter
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 public class CreateStudentDTO {
 
     @NotEmpty(message = "{NotEmpty.name}")
+    @Pattern(regexp ="^[A-Za-z\\s]+", message = "Name must be in valid format")
     private String name;
 
     @Email
