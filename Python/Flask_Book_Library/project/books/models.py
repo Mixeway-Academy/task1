@@ -1,7 +1,6 @@
 from project import db, app
 import re
 
-
 # Book model
 class Book(db.Model):
     __tablename__ = 'books'
@@ -12,12 +11,19 @@ class Book(db.Model):
     book_type = db.Column(db.String(20))
     status = db.Column(db.String(20), default='available')
 
+    # Walidacja pola tekstowego za pomocą wyrażenia regularnego
+    def validate_text(self, text):
+        if not re.match("^[a-zA-Z0-9\s-]*$", text):
+            raise ValueError("Dozwolone są tylko małe i wielkie litery, cyfry, spacja oraz myślnik.")
+        return text
+
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        # Walidacja każdego z pól tekstowych
+        self.name = self.validate_text(name)
+        self.author = self.validate_text(author)
+        self.book_type = self.validate_text(book_type)
+        self.status = self.validate_text(status)
         self.year_published = year_published
-        self.book_type = book_type
-        self.status = status
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
