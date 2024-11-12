@@ -32,7 +32,10 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    try:
+        new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    except ValueError as e:
+        return jsonify({'error': f'{e}'}), 400
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -52,7 +55,7 @@ def create_book():
 def edit_book(book_id):
     # Get the book with the given ID
     book = Book.query.get(book_id)
-    
+
     # Check if the book exists
     if not book:
         print('Book not found')
@@ -61,13 +64,13 @@ def edit_book(book_id):
     try:
         # Get data from the request as JSON
         data = request.get_json()
-        
+
         # Update book details
         book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
         book.author = data.get('author', book.author)
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
-        
+
         # Commit the changes to the database
         db.session.commit()
         print('Book edited successfully')
@@ -84,7 +87,7 @@ def edit_book(book_id):
 def get_book_for_edit(book_id):
     # Get the book with the given ID
     book = Book.query.get(book_id)
-    
+
     # Check if the book exists
     if not book:
         print('Book not found')
@@ -97,7 +100,7 @@ def get_book_for_edit(book_id):
         'year_published': book.year_published,
         'book_type': book.book_type
     }
-    
+
     return jsonify({'success': True, 'book': book_data})
 
 
