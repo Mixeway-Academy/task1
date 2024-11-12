@@ -1,10 +1,12 @@
+import re
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
 
 
 # Blueprint for customers
-customers = Blueprint('customers', __name__, template_folder='templates', url_prefix='/customers')
+customers = Blueprint('customers', __name__,
+                      template_folder='templates', url_prefix='/customers')
 
 
 # Route to display customers in HTML
@@ -21,7 +23,8 @@ def list_customers():
 def list_customers_json():
     # Fetch all customers from the database and convert to JSON
     customers = Customer.query.all()
-    customer_list = [{'name': customer.name, 'city': customer.city, 'age': customer.age} for customer in customers]
+    customer_list = [{'name': customer.name, 'city': customer.city,
+                      'age': customer.age} for customer in customers]
     return jsonify(customers=customer_list)
 
 
@@ -30,12 +33,8 @@ def list_customers_json():
 def create_customer():
     data = request.form
 
-    # Validate the form data
-    if 'name' not in data or 'city' not in data or 'age' not in data:
-        print('Invalid form data')
-        return jsonify({'error': 'Invalid form data'}), 400
-
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+    new_customer = Customer(
+        name=data['name'], city=data['city'], age=data['age'])
 
     try:
         # Add the new customer to the session and commit to save to the database
@@ -85,9 +84,19 @@ def edit_customer(customer_id):
         data = request.form
 
         # Update customer details
+
         customer.name = data['name']
         customer.city = data['city']
         customer.age = data['age']
+
+        if (len(customer.name) < 1) or (len(customer.name) > 64):
+            raise ValueError('Name must be between 1 and 64 characters.')
+        if (len(customer.city) < 1) or (len(customer.city) > 64):
+            raise ValueError('City must be between 1 and 64 characters.')
+        if not re.match(r"^[a-zA-Z\s]+$", customer.name):
+            raise ValueError('Name must only containt letters and spaces.')
+        if not re.match(r"^[a-zA-Z\s]+$", customer.city):
+            raise ValueError('City must only containt letters and spaces.')
 
         # Commit the changes to the database
         db.session.commit()

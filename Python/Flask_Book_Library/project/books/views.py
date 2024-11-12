@@ -1,3 +1,4 @@
+import re
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.books.models import Book
@@ -67,6 +68,15 @@ def edit_book(book_id):
         book.author = data.get('author', book.author)
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
+
+        if (len(book.name) < 1) or (len(book.name) > 64):
+            raise ValueError('Name must be between 1 and 64 characters.')
+        if (len(book.author) < 1) or (len(book.author) > 64):
+            raise ValueError('Author must be between 1 and 64 characters.')
+        if not re.match(r"^[a-zA-Z\s]+$", book.name):
+            raise ValueError('Name must only containt letters and spaces.')
+        if not re.match(r"^[a-zA-Z\s]+$", book.city):
+            raise ValueError('Author must only containt letters and spaces.')
         
         # Commit the changes to the database
         db.session.commit()
