@@ -1,3 +1,5 @@
+import nh3
+
 from project import db, app
 
 
@@ -10,8 +12,8 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
-        self.name = name
-        self.city = city
+        self.name = nh3.clean_text(name)
+        self.city = nh3.clean_text(city)
         self.age = age
 
     def __repr__(self):
