@@ -2,6 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
+import re
 
 
 # Blueprint for books
@@ -63,10 +64,19 @@ def edit_book(book_id):
         data = request.get_json()
         
         # Update book details
+        
         book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
         book.author = data.get('author', book.author)
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
+
+        regex = r"^[^<>{}`~@#$%^*_+=|]{1,50}"
+        if not re.match(regex, book.name):
+            raise ValueError("Podana wartość jest niepoprawna")
+        
+        regex = r"^[a-zA-Z\s\-]{1,50}"
+        if not re.match(regex, book.author):
+            raise ValueError("Podana wartość jest niepoprawna")
         
         # Commit the changes to the database
         db.session.commit()

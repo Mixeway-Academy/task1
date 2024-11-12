@@ -1,7 +1,6 @@
 from project import db, app
 import re
 
-
 # Book model
 class Book(db.Model):
     __tablename__ = 'books'
@@ -13,6 +12,14 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+        regex = r"^[^<>{}`~@#$%^*_+=|]{1,50}"
+        if not re.match(regex, name):
+            raise ValueError("Podana wartość jest niepoprawna")
+
+        regex = r"^[a-zA-Z\s\-]{1,50}"
+        if not re.match(regex, author):
+            raise ValueError("Podana wartość jest niepoprawna")
+        
         self.name = name
         self.author = author
         self.year_published = year_published

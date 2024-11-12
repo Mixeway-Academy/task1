@@ -1,4 +1,6 @@
 from project import db, app
+import re
+regex = r"^[a-zA-Z\s\-]{1,50}"
 
 
 # Customer model
@@ -10,6 +12,10 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
+        if not re.match(regex, name):
+            raise ValueError("Podana wartość jest niepoprawna")
+        if not re.match(regex, city):
+            raise ValueError("Podana wartość jest niepoprawna")
         self.name = name
         self.city = city
         self.age = age
