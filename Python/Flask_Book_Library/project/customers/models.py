@@ -1,4 +1,5 @@
 from project import db, app
+from ..common.validators.xss_validator import XSSValidator
 
 
 # Customer model
@@ -10,8 +11,8 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
-        self.name = name
-        self.city = city
+        self.name = XSSValidator.validate_xss(name)
+        self.city = XSSValidator.validate_xss(city)
         self.age = age
 
     def __repr__(self):
