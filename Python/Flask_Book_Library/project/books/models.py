@@ -22,6 +22,16 @@ class Book(db.Model):
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
 
+    def is_valid(self):
+        if len(self.name) > 64:
+            return False
+        if len(self.author) > 64:
+            return False
+        if not self.year_published.isnumeric():
+            return False
+        if len(self.book_type) > 20 or not (self.book_type == '2days' or self.book_type == '5days' or self.book_type == '10days'):
+            return False
+        return True
 
 with app.app_context():
     db.create_all()

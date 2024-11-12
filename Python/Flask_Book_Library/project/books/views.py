@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, request, redirect, url_for, jsonify
+from flask import render_template, Blueprint, request, redirect, url_for, jsonify, escape, abort
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
@@ -32,7 +32,10 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    new_book = Book(name= escape(data['name']), author=escape(data['author']), year_published=data['year_published'], book_type=data['book_type'])
+
+    if not new_book.is_valid():
+        abort(400)
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -63,10 +66,13 @@ def edit_book(book_id):
         data = request.get_json()
         
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
+        book.name = escape(data.get('name', book.name))  # Update if data exists, otherwise keep the same
+        book.author = escape(data.get('author', book.author))
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
+
+        if not book.is_valid():
+            raise Exception("not valid data")
         
         # Commit the changes to the database
         db.session.commit()

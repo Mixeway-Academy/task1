@@ -72,7 +72,7 @@ const populateDropdown = (elementId, data) => {
     data.forEach(item => {
         const option = document.createElement('option');
         option.value = item.name;  
-        option.textContent = item.name;
+        option.innerHTML = item.name;
         dropdown.appendChild(option);
     });
 };

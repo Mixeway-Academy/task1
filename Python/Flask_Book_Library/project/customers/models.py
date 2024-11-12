@@ -17,6 +17,14 @@ class Customer(db.Model):
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"
 
+    def is_valid(self):
+        if len(self.name) > 64:
+            return False
+        if len(self.city) > 64:
+            return False
+        if not self.age.isnumeric() or int(self.age) <= 0:
+            return False
+        return True
 
 with app.app_context():
     db.create_all()
