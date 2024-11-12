@@ -41,9 +41,12 @@ public class StudentController {
             return "new-student";
         }
 
-        this.studentService.save(StudentMapper.toEntity(studentDTO));
-        attributes.addFlashAttribute("message", "User registered successfully!");
-        return "redirect:/students";
+        boolean isCreationSuccessful = this.studentService.save(StudentMapper.toEntity(studentDTO));
+        if (isCreationSuccessful){
+            attributes.addFlashAttribute("message", "User registered successfully!");
+            return "redirect:/students";
+        }
+        else return "redirect:/forbidden";
     }
 
     @GetMapping("/{id}")
@@ -59,9 +62,14 @@ public class StudentController {
             return "edit-student";
         }
 
-        this.studentService.update(id, StudentMapper.toEntity(studentDTO));
-        attributes.addFlashAttribute("message", "User updated successfully!");
-        return "redirect:/students";
+
+        boolean isUpdateSuccessful = this.studentService.update(id, StudentMapper.toEntity(studentDTO));
+        if (isUpdateSuccessful) {
+            attributes.addFlashAttribute("message", "User updated successfully!");
+            return "redirect:/students";
+        }
+        else return "redirect:/forbidden";
+
     }
 
     @GetMapping("/{id}/delete")

@@ -10,6 +10,7 @@ COPY src /app/src
 COPY pom.xml /app
 
 # Package the application
+RUN mvn clean test
 RUN mvn clean install -DskipTests
 
 # ---- Deploy Stage ----
