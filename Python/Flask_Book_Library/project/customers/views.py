@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
+import re
 
 
 # Blueprint for customers
@@ -36,6 +37,15 @@ def create_customer():
         return jsonify({'error': 'Invalid form data'}), 400
 
     new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+
+    if len(new_customer.name) < 1 or len(new_customer.name) > 100:
+        return jsonify({'error': 'Customer name must be between 1 and 100 characters'}), 400
+    if not re.match("^[a-zA-Z ]+$", new_customer.name):
+        return jsonify({'error': 'Customer name must contain only alphabets and spaces'}), 400
+    if len(new_customer.city) < 1 or len(new_customer.city) > 100:
+        return jsonify({'error': 'City name must be between 1 and 100 characters'}), 400
+    if not re.match("^[a-zA-Z ]+$", new_customer.city):
+        return jsonify({'error': 'City name must contain only alphabets and spaces'}), 400
 
     try:
         # Add the new customer to the session and commit to save to the database
@@ -88,6 +98,15 @@ def edit_customer(customer_id):
         customer.name = data['name']
         customer.city = data['city']
         customer.age = data['age']
+
+        if len(customer.name) < 1 or len(customer.name) > 100:
+            return jsonify({'error': 'Customer name must be between 1 and 100 characters'}), 400
+        if not re.match("^[a-zA-Z ]+$", customer.name):
+            return jsonify({'error': 'Customer name must contain only letters and spaces'}), 400
+        if len(customer.city) < 1 or len(customer.city) > 100:
+            return jsonify({'error': 'City name must be between 1 and 100 characters'}), 400
+        if not re.match("^[a-zA-Z ]+$", customer.city):
+            return jsonify({'error': 'City name must contain only letters and spaces'}), 400
 
         # Commit the changes to the database
         db.session.commit()

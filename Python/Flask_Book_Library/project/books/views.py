@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.books.models import Book
-from project.books.forms import CreateBook
+import re
 
 
 # Blueprint for books
@@ -33,6 +33,15 @@ def create_book():
     data = request.get_json()
 
     new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+
+    if len(new_book.name) < 1 or len(new_book.name) > 100:
+        return jsonify({'error': 'Book name must be between 1 and 100 characters'}), 400
+    if not re.match("^[a-zA-Z0-9 -]+$", new_book.name):
+        return jsonify({'error': 'Book name must contain only alphabets, numbers, spaces and dashes'}), 400
+    if len(new_book.author) < 1 or len(new_book.author) > 100:
+        return jsonify({'error': 'Author name must be between 1 and 100 characters'}), 400
+    if not re.match("^[a-zA-Z ]+$", new_book.author):
+        return jsonify({'error': 'Author name must contain only alphabets and spaces'}), 400
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -68,6 +77,15 @@ def edit_book(book_id):
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
         
+        if len(book.name) < 1 or len(book.name) > 100:
+            return jsonify({'error': 'Book name must be between 1 and 100 characters'}), 400
+        if not re.match("^[a-zA-Z0-9 ]+$", book.name):
+            return jsonify({'error': 'Book name must contain only letters, numbers and spaces'}), 400
+        if len(book.author) < 1 or len(book.author) > 100:
+            return jsonify({'error': 'Author name must be between 1 and 100 characters'}), 400
+        if not re.match("^[a-zA-Z ]+$", book.author):
+            return jsonify({'error': 'Author name must contain only letters and spaces'}), 400
+
         # Commit the changes to the database
         db.session.commit()
         print('Book edited successfully')
