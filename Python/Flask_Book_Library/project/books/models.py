@@ -1,4 +1,5 @@
 from project import db, app
+from sqlalchemy.orm import validates
 import re
 
 
@@ -11,6 +12,19 @@ class Book(db.Model):
     year_published = db.Column(db.Integer) 
     book_type = db.Column(db.String(20))
     status = db.Column(db.String(20), default='available')
+
+    VALID_NAME_PATTERN = r'^[a-zA-Z0-9\s,\.-?!:]*$'
+    VALID_AUTHOR_PATTERN = r'^[a-zA-Z\s,\.-]*$'
+    max_len = 64
+
+    @validates('name', 'author')
+    def validate_name_and_author(self, key, value):
+        pattern = self.VALID_NAME_PATTERN if key == 'name' else self.VALID_AUTHOR_PATTERN
+        if len(value) > self.max_len:
+            raise ValueError(f"{key.capitalize()} too long.")
+        if not re.match(pattern, value):
+            raise ValueError(f"{key.capitalize()} contains invalid characters.")
+        return value
 
     def __init__(self, name, author, year_published, book_type, status='available'):
         self.name = name
