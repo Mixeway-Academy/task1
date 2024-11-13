@@ -2,11 +2,10 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
-
+import re
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
-
 
 # Route to display books in HTML
 @books.route('/', methods=['GET'])
@@ -32,7 +31,10 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    try:
+        new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    except ValueError as e:
+        return jsonify({'error': f'Error creating book: {str(e)}'}), 400
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -67,7 +69,18 @@ def edit_book(book_id):
         book.author = data.get('author', book.author)
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
-        
+
+        # length check
+        if len(name) < 1 or len(name) > 100:
+            raise ValueError("Book name must contain 1-100 characters")
+        if len(author) < 1 or len(author) > 100:
+            raise ValueError("Author field must contain 1-100 characters")
+        if not re.match(r"^[a-zA-Z\s]+$", author):
+            raise ValueError("Author must only contain letters and spaces")
+
+        # escape special chars
+        book.name = book.name.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#x27;')
+
         # Commit the changes to the database
         db.session.commit()
         print('Book edited successfully')

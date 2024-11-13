@@ -13,6 +13,17 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+        # length check
+        if len(name) < 1 or len(name) > 100:
+            raise ValueError("Book name must contain 1-100 characters")
+        if len(author) < 1 or len(author) > 100:
+            raise ValueError("Author field must contain 1-100 characters")
+        if not re.match(r"^[a-zA-Z\s]+$", author):
+            raise ValueError("Author must only contain letters and spaces")
+            
+        # escape special chars
+        name = name.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#x27;')
+
         self.name = name
         self.author = author
         self.year_published = year_published

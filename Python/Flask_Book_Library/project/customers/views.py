@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
-
+import re
 
 # Blueprint for customers
 customers = Blueprint('customers', __name__, template_folder='templates', url_prefix='/customers')
@@ -35,7 +35,10 @@ def create_customer():
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+    try:
+        new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+    except Exception as e:
+        return jsonify({'error': f'{str(e)}'}), 400
 
     try:
         # Add the new customer to the session and commit to save to the database
@@ -88,6 +91,15 @@ def edit_customer(customer_id):
         customer.name = data['name']
         customer.city = data['city']
         customer.age = data['age']
+
+        if (len(name) < 1) or (len(name) > 100):
+            raise ValueError("Customer name must contain 1-100 characters")
+        if (len(city) < 1) or (len(city) > 60):
+            raise ValueError("City must must contain 1-60 characters")
+        if not re.match(r"^[a-zA-Z\s]+$", name):
+            raise ValueError("Customer must only contain letters and spaces")
+        if not re.match(r"^[a-zA-Z\s]+$", city):
+            raise ValueError("City must only contain letters and spaces")
 
         # Commit the changes to the database
         db.session.commit()
