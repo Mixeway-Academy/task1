@@ -1,5 +1,5 @@
 from project import db , app
-
+import re
 
 # Loan model
 class Loan(db.Model):
@@ -15,6 +15,13 @@ class Loan(db.Model):
     original_book_type = db.Column(db.String(64), nullable=False)
 
     def __init__(self, customer_name, book_name, loan_date, return_date, original_author, original_year_published, original_book_type):
+    
+        if not re.match(r'^[a-zA-Z-]+$', customer_name) or not (1 <= len(customer_name) <= 64):
+            raise ValueError(400, "Niepoprawna nazwa klienta. Dozwolone są znaki alfabetyczne i myślnik.")
+
+        if not re.match(r'^[a-zA-Z0-9]+$', book_name) or not (1 <= len(book_name) <= 64):
+            raise ValueError(400, "Niepoprawna nazwa książki. Dozwolone są znaki alfabetyczne i cyfry.")
+    
         self.customer_name = customer_name
         self.book_name = book_name
         self.loan_date = loan_date

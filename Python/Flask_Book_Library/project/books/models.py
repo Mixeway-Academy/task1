@@ -13,6 +13,13 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+    
+        if not re.match(r'^[a-zA-Z0-9]+$', name) or not (1 <= len(name) <= 64):
+            raise ValueError(400, "Niepoprawna nazwa książki. Dozwolone są znaki alfabetyczne i cyfry.")
+
+        if not re.match(r'^[a-zA-Z-]+$', author) or not (1 <= len(author) <= 64):
+            raise ValueError(400, "Niepoprawny autor. Dozwolone są znaki alfabetyczne oraz myślnik.")
+         
         self.name = name
         self.author = author
         self.year_published = year_published

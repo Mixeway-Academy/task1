@@ -17,5 +17,8 @@ ENV FLASK_RUN_HOST=0.0.0.0
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Uruchamiamy aplikację
-CMD ["flask", "run"]
+# Argument do uruchamiania aplikacji/testów
+ARG RUN_TESTS=False
+
+# Uruchamiamy aplikację/testy
+CMD if [ "$RUN_TESTS" = "True" ]; then python -m unittest discover -s tests -p "test_xss.py"; else flask run; fi
