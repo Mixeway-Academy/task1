@@ -84,7 +84,7 @@ class Book(db.Model):
         self.name = name if checker.check_name(name) else None
         self.author = author if checker.check_author(author) else None
         self.year_published = year_published if checker.check_year_published(year_published) else None
-        self.book_type = book_type if checker.check_name(book_type) else None
+        self.book_type = book_type if checker.check_book_type(book_type) else None
         self.status = status if checker.check_name(status) else None
 
     def __repr__(self):
