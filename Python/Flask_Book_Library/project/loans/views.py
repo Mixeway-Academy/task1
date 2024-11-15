@@ -4,7 +4,9 @@ from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
+from project.loans.models import LoanChecker
 
+checker = LoanChecker()
 
 # Blueprint for loans
 loans = Blueprint('loans', __name__, template_folder='templates', url_prefix='/loans')
@@ -73,6 +75,9 @@ def create_loan():
                 original_year_published=book.year_published,
                 original_book_type=book.book_type
             )
+
+            # Validate the loan data
+            checker.check_loan(new_loan)
 
             # Add the new loan to the database
             db.session.add(new_loan)
@@ -145,7 +150,7 @@ def delete_loan(loan_id):
             author=loan.original_author,
             year_published=loan.original_year_published,
             book_type=loan.original_book_type,
-            status='available'  
+            status='available' 
         )
 
         # Add the book to the database

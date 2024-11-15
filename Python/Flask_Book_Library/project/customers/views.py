@@ -1,7 +1,9 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
+from project.customers.models import CustomerChecker
 
+checker = CustomerChecker()
 
 # Blueprint for customers
 customers = Blueprint('customers', __name__, template_folder='templates', url_prefix='/customers')
@@ -35,10 +37,11 @@ def create_customer():
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
-
     try:
         # Add the new customer to the session and commit to save to the database
+        new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+        checker.check_customer(new_customer)
+
         db.session.add(new_customer)
         db.session.commit()
         print('Customer added succesfully')
@@ -88,6 +91,8 @@ def edit_customer(customer_id):
         customer.name = data['name']
         customer.city = data['city']
         customer.age = data['age']
+
+        checker.check_customer(customer)
 
         # Commit the changes to the database
         db.session.commit()
