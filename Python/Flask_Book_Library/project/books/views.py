@@ -3,6 +3,10 @@ from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
 
+from project.books.models import BookChecker
+
+checker = BookChecker()
+
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
@@ -32,9 +36,8 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
-
     try:
+        new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
         # Add the new book to the session and commit to save to the database
         db.session.add(new_book)
         db.session.commit()
@@ -67,6 +70,8 @@ def edit_book(book_id):
         book.author = data.get('author', book.author)
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
+
+        checker.check_book(book)
         
         # Commit the changes to the database
         db.session.commit()
@@ -108,7 +113,7 @@ def delete_book(book_id):
     if not book:
         print('Book not found')
         return jsonify({'error': 'Book not found'}), 404
-
+    
     try:
         # Delete the book from the database
         db.session.delete(book)
