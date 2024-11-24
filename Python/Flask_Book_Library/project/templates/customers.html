@@ -30,6 +30,7 @@
             <!-- Loop through customers and display each customer -->
             {% for customer in customers %}
             <tr>
+            <!-- usuniecie flagi safe spowodowaloby automatyczna ochrone przed xss -->
                 <td>{{ customer.name | safe }}</td>
                 <td>{{ customer.city | safe }}</td>  <!-- Display 'city' instead of 'author' -->
                 <td>{{ customer.age }}</td>  <!-- Display 'age' -->

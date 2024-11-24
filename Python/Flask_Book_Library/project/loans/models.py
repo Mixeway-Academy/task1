@@ -1,5 +1,6 @@
 from project import db , app
-
+from sqlalchemy.orm import validates
+import re
 
 # Loan model
 class Loan(db.Model):
@@ -25,6 +26,23 @@ class Loan(db.Model):
 
     def __repr__(self):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"
+
+    @validates('customer_name')
+    def customer_name_validator(self, key, value):
+        if not value:
+            raise ValueError("Name must not be blank")
+        if re.match(r'^[a-zA-Z ]+$', value) is None:
+            raise ValueError("Name must contain only letters and spaces")
+        return value
+
+    @validates('book_name')
+    def book_name_validator(self, key, value):
+        if not value:
+            raise ValueError("Name must not be blank")
+        if re.match(r'^[a-zA-Z0-9 ]+$', value) is None:
+            raise ValueError("Name must contain only letters, numbers, and spaces")
+        return value
+
 
 
 with app.app_context():

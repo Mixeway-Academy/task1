@@ -30,6 +30,7 @@
             <!-- Loop through books and display each book -->
             {% for book in books %}
             <tr>
+            <!-- usuniecie flagi safe spowodowaloby automatyczna ochrone przed xss -->
                 <td>{{ book.name | safe }}</td>
                 <td>{{ book.author | safe }}</td>
                 <td>{{ book.year_published }}</td> <!-- Display Year Published -->

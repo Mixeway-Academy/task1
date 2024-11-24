@@ -4,6 +4,7 @@ from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
+import html
 
 
 # Blueprint for loans
@@ -65,8 +66,8 @@ def create_loan():
         try:
             # Create a new loan and store original book details
             new_loan = Loan(
-                customer_name=customer_name,
-                book_name=book_name,
+                customer_name=html.escape(html.unescape(customer_name)),
+                book_name=html.escape(html.unescape(book_name)),
                 loan_date=loan_date,
                 return_date=return_date,
                 original_author=book.author,

@@ -33,6 +33,7 @@
             <!-- Loop through loans and display each loan -->
             {% for loan in loans %}
                 <tr>
+                <!-- usuniecie flagi safe spowodowaloby automatyczna ochrone przed xss -->
                     <td>{{ loan.customer_name | safe }}</td>
                     <td>{{ loan.book_name | safe }}</td>
                     <td>{{ loan.loan_date }}</td>
