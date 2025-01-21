@@ -31,8 +31,11 @@ def list_books_json():
 @books.route('/create', methods=['POST', 'GET'])
 def create_book():
     data = request.get_json()
-
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    
+    try:
+        new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    except ValueError as v:
+        return jsonify({'error': f'Error creating book: {str(v)}'}), 400
 
     try:
         # Add the new book to the session and commit to save to the database

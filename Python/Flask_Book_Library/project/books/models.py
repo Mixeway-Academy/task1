@@ -1,6 +1,6 @@
 from project import db, app
 import re
-
+import html
 
 # Book model
 class Book(db.Model):
@@ -13,7 +13,13 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
+        if(len(name)<1 or len(name)>64):
+            raise ValueError("Invalid length of name string")
+        self.name = html.escape(name)
+        if(len(author)<1 or len(author)>64):
+            raise ValueError("Invalid length of author string")
+        if not (re.match(r"^[\w\-\s]+$", author)):
+            raise ValueError("Unexpected characters in author string")
         self.author = author
         self.year_published = year_published
         self.book_type = book_type

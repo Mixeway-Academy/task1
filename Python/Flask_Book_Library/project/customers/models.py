@@ -1,5 +1,5 @@
 from project import db, app
-
+import re
 
 # Customer model
 class Customer(db.Model):
@@ -10,7 +10,15 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
+        if(len(name)<1 or len(name)>64):
+            raise ValueError("Invalid length of name string")
+        if not (re.match(r"^[\w\-\s]+$", name)):
+            raise ValueError("Unexpected characters in name string")
         self.name = name
+        if(len(city)<1 or len(city)>64):
+            raise ValueError("Invalid length of city string")
+        if not (re.match(r"^[\w\-\s]+$", city)):
+            raise ValueError("Unexpected characters in city string")
         self.city = city
         self.age = age
 
