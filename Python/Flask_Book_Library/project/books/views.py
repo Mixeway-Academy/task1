@@ -2,10 +2,22 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
+import re
+import html
 
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
+
+
+def _sanitize_input(value):
+    """Remove HTML/JS tags and escape dangerous characters"""
+    if not value:
+        return value
+    # Remove script tags and escape HTML
+    value = re.sub(r'<script[^>]*>.*?</script>', '', str(value), flags=re.IGNORECASE | re.DOTALL)
+    value = html.escape(value)
+    return value
 
 
 # Route to display books in HTML
@@ -62,9 +74,9 @@ def edit_book(book_id):
         # Get data from the request as JSON
         data = request.get_json()
         
-        # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
+        # Update book details with XSS protection
+        book.name = _sanitize_input(data.get('name', book.name))
+        book.author = _sanitize_input(data.get('author', book.author))
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
         
