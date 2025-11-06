@@ -1,4 +1,5 @@
 from project import db, app
+import html
 
 
 # Customer model
@@ -10,8 +11,8 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
-        self.name = name
-        self.city = city
+        self.name = html.escape(name)
+        self.city = html.escape(city)
         self.age = age
 
     def __repr__(self):

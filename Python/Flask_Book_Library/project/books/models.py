@@ -1,5 +1,6 @@
 from project import db, app
 import re
+import html
 
 
 # Book model
@@ -13,8 +14,8 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        self.name = html.escape(name)
+        self.author = html.escape(author)
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
