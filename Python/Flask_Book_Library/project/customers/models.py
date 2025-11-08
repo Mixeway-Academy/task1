@@ -1,4 +1,5 @@
 from project import db, app
+import bleach
 
 
 # Customer model
@@ -10,9 +11,9 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
-        self.name = name
-        self.city = city
-        self.age = age
+        self.name = bleach.clean(name, tags=[], strip=True)
+        self.city = bleach.clean(city, tags=[], strip=True)
+        self.age = bleach.clean(age, tags=[], strip=True)
 
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"
