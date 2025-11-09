@@ -1,10 +1,10 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
+from markupsafe import escape
 from project import db
 from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
-
 
 # Blueprint for loans
 loans = Blueprint('loans', __name__, template_folder='templates', url_prefix='/loans')
@@ -51,10 +51,10 @@ def create_loan():
     if request.method == 'POST':
         
         # Process form submission
-        customer_name = form.customer_name.data
-        book_name = form.book_name.data
-        loan_date = form.loan_date.data
-        return_date = form.return_date.data
+        customer_name = escape(form.customer_name.data)
+        book_name = escape(form.book_name.data)
+        loan_date = escape(form.loan_date.data)
+        return_date = escape(form.return_date.data)
 
         # Check if the book is available
         book = Book.query.filter_by(name=book_name, status='available').first()

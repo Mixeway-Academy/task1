@@ -8,7 +8,11 @@ WORKDIR /app
 COPY . .
 
 # Instalujemy zależności
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Gdy testy się nie zakończą się sukcesem obraz się nie zbuduj
+RUN pytest -v
 
 # Ustawiamy zmienną środowiskową, aby Flask wiedział, jak uruchomić aplikację
 ENV FLASK_APP=app.py
