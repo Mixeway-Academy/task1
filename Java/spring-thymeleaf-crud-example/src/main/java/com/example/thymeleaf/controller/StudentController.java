@@ -36,7 +36,8 @@ public class StudentController {
     }
 
     @PostMapping("/new")
-    public String create(@ModelAttribute("student") @Valid CreateStudentDTO studentDTO, BindingResult result, RedirectAttributes attributes) {
+    public String create(@ModelAttribute("student") @Valid CreateStudentDTO studentDTO, BindingResult result,
+            RedirectAttributes attributes) {
         if (result.hasErrors()) {
             return "new-student";
         }
@@ -53,7 +54,8 @@ public class StudentController {
     }
 
     @PostMapping("/{id}")
-    public String update(@PathVariable String id, @ModelAttribute("student") @Valid UpdateStudentDTO studentDTO, BindingResult result, RedirectAttributes attributes) {
+    public String update(@PathVariable String id, @ModelAttribute("student") @Valid UpdateStudentDTO studentDTO,
+            BindingResult result, RedirectAttributes attributes) {
         if (result.hasErrors()) {
             studentDTO.setId(id);
             return "edit-student";
