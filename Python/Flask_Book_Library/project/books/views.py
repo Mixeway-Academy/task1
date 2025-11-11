@@ -1,8 +1,8 @@
-from flask import render_template, Blueprint, request, redirect, url_for, jsonify
+from flask import render_template, Blueprint, request, redirect, url_for, jsonify, flash
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
-
+import re
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
@@ -32,8 +32,22 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    sanitized_name = data.get('name', '').strip()
+    sanitized_author = data.get('author', '').strip()
+    allowed_pattern = r"^[A-Za-z0-9\s\-\':,\.!]+$"
 
+    # DB Allows max 64 characters for these fields, let's limit that. We also get rid of |safe to prevent rendering malicious HTML.
+    # We don't trust the data from user input fields, thus we sanitize it first nevertheless.
+    if not re.match(allowed_pattern, sanitized_name) or len(sanitized_name) > 64:
+        print('Invalid book name')
+        return jsonify({'error': f'Invalid book name'}), 400    # Additional verification for the length and data sanitization, but removing |safe from HTML is enough in this case.
+
+    if not re.match(allowed_pattern, sanitized_author) or len(sanitized_author) > 64:
+        print('Invalid author name')
+        return jsonify({'error': f'Invalid author name'}), 400
+
+    new_book = Book(name=sanitized_name, author=sanitized_author, year_published=data['year_published'], book_type=data['book_type'])
+    
     try:
         # Add the new book to the session and commit to save to the database
         db.session.add(new_book)

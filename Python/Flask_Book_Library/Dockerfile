@@ -17,5 +17,6 @@ ENV FLASK_RUN_HOST=0.0.0.0
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Uruchamiamy aplikację
-CMD ["flask", "run"]
+# Uruchamiamy aplikację 
+# Edit: This solves an issue when you can't install flask via docker (happens sometimes)
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"] 
