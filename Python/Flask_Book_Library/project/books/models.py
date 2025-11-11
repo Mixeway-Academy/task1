@@ -1,7 +1,11 @@
 from project import db, app
 import re
 
-
+def strip_html(value):
+    TAG_RE = re.compile(r"<[^>]+>")
+    if not value:
+        return value
+    return TAG_RE.sub("", value)
 # Book model
 class Book(db.Model):
     __tablename__ = 'books'
@@ -12,9 +16,16 @@ class Book(db.Model):
     book_type = db.Column(db.String(20))
     status = db.Column(db.String(20), default='available')
 
+    # usuwanie <> z wprowadzonego tekstu
+    def strip_html(self, value):
+        TAG_RE = re.compile(r"<[^>]+>")
+        if not value:
+            return value
+        return TAG_RE.sub("", value)
+
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        self.name = self.strip_html(name)
+        self.author = self.strip_html(author)
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
@@ -22,6 +33,8 @@ class Book(db.Model):
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
 
+   
+    
 
 with app.app_context():
     db.create_all()
