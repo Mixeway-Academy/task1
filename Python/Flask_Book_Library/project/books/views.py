@@ -1,8 +1,8 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
-from project.books.models import Book
+from project.books.models import Book, BOOK_NAME_ALLOWED_TEXT_PATTERN, AUTHOR_ALLOWED_TEXT_PATTERN
 from project.books.forms import CreateBook
-
+import bleach
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
@@ -32,7 +32,15 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    sanitized_name = bleach.clean(data['name'], tags=[], attributes={}, strip=True)
+    sanitized_author = bleach.clean(data['author'], tags=[], attributes={}, strip=True)
+
+    new_book = Book(
+        name=sanitized_name,
+        author=sanitized_author, 
+        year_published=data['year_published'], 
+        book_type=data['book_type']
+    )
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -63,8 +71,15 @@ def edit_book(book_id):
         data = request.get_json()
         
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
+        if 'name' in data:
+            sanitized_name = bleach.clean(data['name'], tags=[], attributes={}, strip=True)
+            if BOOK_NAME_ALLOWED_TEXT_PATTERN.match(sanitized_name):
+                book.name = sanitized_name  # Update if data exists, otherwise keep the same
+        if 'author' in data:
+            sanitized_author = bleach.clean(data['author'], tags=[], attributes={}, strip=True)
+            if AUTHOR_ALLOWED_TEXT_PATTERN.match(sanitized_author):
+                book.author = sanitized_author # Update if data exists, otherwise keep the same
+
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
         

@@ -2,13 +2,13 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField
 from wtforms.fields import DateField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 
 
 # Flask forms (wtforms) allow you to easily create forms in format:
 class CreateLoan(FlaskForm):
-    customer_name = StringField('Customer Name', validators=[DataRequired()])
-    book_name = StringField('Book Name', validators=[DataRequired()])
+    customer_name = StringField('Customer Name', validators=[DataRequired(), Length(max=64)])
+    book_name = StringField('Book Name', validators=[DataRequired(), Length(max=64)])
     loan_date = DateField('Loan Date', format='%Y-%m-%d', validators=[DataRequired()])
     return_date = DateField('Return Date', format='%Y-%m-%d', validators=[DataRequired()])
 
