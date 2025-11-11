@@ -2,7 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
-
+from project.books.validators import validate_book_name
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
@@ -26,13 +26,17 @@ def list_books_json():
     book_list = [{'name': book.name, 'author': book.author, 'year_published': book.year_published, 'book_type': book.book_type} for book in books]
     return jsonify(books=book_list)
 
-
 # Route to create a new book
 @books.route('/create', methods=['POST', 'GET'])
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    name = (data.get('name') or "").strip()
+    
+    if not validate_book_name(name):
+        return jsonify({'error': 'Invalid book name. Only letters and digits are allowed.'}), 400
+
+    new_book = Book(name=name, author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
 
     try:
         # Add the new book to the session and commit to save to the database
