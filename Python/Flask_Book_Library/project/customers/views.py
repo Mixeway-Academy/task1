@@ -30,23 +30,23 @@ def list_customers_json():
 def create_customer():
     data = request.form
 
-    # Validate the form data
     if 'name' not in data or 'city' not in data or 'age' not in data:
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
-
     try:
-        # Add the new customer to the session and commit to save to the database
+        new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
         db.session.add(new_customer)
         db.session.commit()
         print('Customer added succesfully')
         return redirect(url_for('customers.list_customers'))
-    except Exception as e:
-        # Handle any exceptions, such as database errors
+    except ValueError as ve:
         db.session.rollback()
-        print('Error creating customer')
+        print('Validation error creating customer:', ve)
+        return jsonify({'error': 'Validation error', 'details': str(ve)}), 400
+    except Exception as e:
+        db.session.rollback()
+        print('Error creating customer', e)
         return jsonify({'error': f'Error creating customer: {str(e)}'}), 500
 
 
@@ -72,32 +72,30 @@ def edit_customer_data(customer_id):
 # Route to update an existing customer
 @customers.route('/<int:customer_id>/edit', methods=['POST'])
 def edit_customer(customer_id):
-    # Get the customer with the given ID
     customer = Customer.query.get(customer_id)
-
-    # Check if the customer exists
     if not customer:
         print('Customer not found')
         return jsonify({'error': 'Customer not found'}), 404
 
     try:
-        # Get data from the request
         data = request.form
 
-        # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
-        customer.age = data['age']
+        customer.name = _clean_text(data.get('name'), "Name")
+        customer.city = _clean_text(data.get('city'), "City")
+        customer.age = _validate_age(data.get('age'))
 
-        # Commit the changes to the database
         db.session.commit()
         print('Customer updated succesfully')
         return redirect(url_for('customers.list_customers'))
-    except Exception as e:
-        # Handle any exceptions
+    except ValueError as ve:
         db.session.rollback()
-        print('Error updating customer')
+        print('Validation error updating customer:', ve)
+        return jsonify({'error': 'Validation error', 'details': str(ve)}), 400
+    except Exception as e:
+        db.session.rollback()
+        print('Error updating customer', e)
         return jsonify({'error': f'Error updating customer: {str(e)}'}), 500
+
 
 
 # Route to delete a customer
