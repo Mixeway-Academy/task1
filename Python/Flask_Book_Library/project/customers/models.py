@@ -1,5 +1,8 @@
 from project import db, app
+import re
 
+CUSTOMER_NAME_ALLOWED_PATTERN = re.compile(r"^[A-Za-z0-9À-ž\s\.\,\-']+$")
+CITY_NAME_ALLOWED_PATTERN = re.compile(r"^[A-Za-z0-9À-ž\s\.\,\-']+$")
 
 # Customer model
 class Customer(db.Model):
@@ -10,8 +13,10 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
-        self.name = name
-        self.city = city
+        if CUSTOMER_NAME_ALLOWED_PATTERN.match(name):
+            self.name = name
+        if CITY_NAME_ALLOWED_PATTERN.match(city):
+            self.city = city
         self.age = age
 
     def __repr__(self):

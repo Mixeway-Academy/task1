@@ -1,6 +1,8 @@
 from project import db, app
 import re
 
+BOOK_NAME_ALLOWED_PATTERN = re.compile(r"^[A-Za-z0-9À-ž\s\.\,\-']+$")
+AUTHOR_ALLOWED_PATTERN = re.compile(r"^[A-Za-z0-9À-ž\s\.\,\-']+$")
 
 # Book model
 class Book(db.Model):
@@ -13,8 +15,10 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        if BOOK_NAME_ALLOWED_PATTERN.match(name):
+            self.name = name
+        if AUTHOR_ALLOWED_PATTERN.match(author):
+            self.author = author
         self.year_published = year_published
         self.book_type = book_type
         self.status = status

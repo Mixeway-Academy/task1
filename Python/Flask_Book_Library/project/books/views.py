@@ -1,8 +1,8 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
-from project.books.models import Book
+from project.books.models import Book, BOOK_NAME_ALLOWED_PATTERN, AUTHOR_ALLOWED_PATTERN
 from project.books.forms import CreateBook
-
+from bleach import clean
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
@@ -32,7 +32,11 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    # Clean input data to prevent HTML/JS injection
+    clean_name = clean(data['name'],tags=[], attributes={}, strip=True)
+    clean_author = clean(data['author'], tags=[], attributes={}, strip=True)
+
+    new_book = Book(name=clean_name, author=clean_author, year_published=data['year_published'], book_type=data['book_type'])
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -63,8 +67,11 @@ def edit_book(book_id):
         data = request.get_json()
         
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
+        editName = clean(data.get('name', book.name), tags=[], attributes={}, strip=True) if 'name' in data else book.name
+        editAuthor = clean(data.get('author', book.author), tags=[], attributes={}, strip=True) if 'author' in data else book.author
+
+        book.name = editName if BOOK_NAME_ALLOWED_PATTERN.match(editName) else book.name
+        book.author = editAuthor if AUTHOR_ALLOWED_PATTERN.match(editAuthor) else book.author
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
         

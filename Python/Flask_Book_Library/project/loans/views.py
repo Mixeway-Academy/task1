@@ -4,7 +4,7 @@ from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
-
+from bleach import clean
 
 # Blueprint for loans
 loans = Blueprint('loans', __name__, template_folder='templates', url_prefix='/loans')
@@ -51,8 +51,8 @@ def create_loan():
     if request.method == 'POST':
         
         # Process form submission
-        customer_name = form.customer_name.data
-        book_name = form.book_name.data
+        customer_name = clean(form.customer_name.data, tags=[], attributes={}, strip=True)
+        book_name = clean(form.book_name.data, tags=[], attributes={}, strip=True)
         loan_date = form.loan_date.data
         return_date = form.return_date.data
 

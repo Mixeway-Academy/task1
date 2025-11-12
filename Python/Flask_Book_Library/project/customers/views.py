@@ -1,7 +1,8 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
-
+from project.customers.models import Customer, CUSTOMER_NAME_ALLOWED_PATTERN, CITY_NAME_ALLOWED_PATTERN
+from bleach import clean
 
 # Blueprint for customers
 customers = Blueprint('customers', __name__, template_folder='templates', url_prefix='/customers')
@@ -35,7 +36,10 @@ def create_customer():
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+    clean_name = clean(data['name'],tags=[], attributes={}, strip=True)
+    clean_city = clean(data['city'], tags=[], attributes={}, strip=True)
+
+    new_customer = Customer(name=clean_name, city=clean_city, age=data['age'])
 
     try:
         # Add the new customer to the session and commit to save to the database
@@ -85,8 +89,11 @@ def edit_customer(customer_id):
         data = request.form
 
         # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
+        editCustomer= clean(data.get('name', customer.name), tags=[], attributes={}, strip=True) if 'name' in data else customer.name
+        editCity = clean(data.get('city', customer.city), tags=[], attributes={}, strip=True) if 'city' in data else customer.city
+        
+        customer.name = editCustomer if CUSTOMER_NAME_ALLOWED_PATTERN.match(editCustomer) else customer.name
+        customer.city = editCity if CITY_NAME_ALLOWED_PATTERN.match(editCity) else customer.city
         customer.age = data['age']
 
         # Commit the changes to the database

@@ -1,5 +1,6 @@
 from project import db , app
-
+from ..books.models import BOOK_NAME_ALLOWED_PATTERN
+from ..customers.models import CUSTOMER_NAME_ALLOWED_PATTERN
 
 # Loan model
 class Loan(db.Model):
@@ -15,8 +16,10 @@ class Loan(db.Model):
     original_book_type = db.Column(db.String(64), nullable=False)
 
     def __init__(self, customer_name, book_name, loan_date, return_date, original_author, original_year_published, original_book_type):
-        self.customer_name = customer_name
-        self.book_name = book_name
+        if CUSTOMER_NAME_ALLOWED_PATTERN.match(customer_name):
+            self.customer_name = customer_name
+        if BOOK_NAME_ALLOWED_PATTERN.match(book_name):
+            self.book_name = book_name
         self.loan_date = loan_date
         self.return_date = return_date
         self.original_author = original_author
