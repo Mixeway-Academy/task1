@@ -13,6 +13,11 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+        if not re.compile(r"^[A-Za-z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-–—:;,.!?'\"()\[\]/&„”«»]{1,255}$").match(name):
+            raise ValueError("Invalid book name.")
+        if not re.compile(r"^[A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ\.\s\-']{2,100}$").match(author):
+            raise ValueError("Invalid author name.")
+
         self.name = name
         self.author = author
         self.year_published = year_published
