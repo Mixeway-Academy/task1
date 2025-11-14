@@ -1,6 +1,14 @@
 from project import db, app
 import re
+import html
 
+def sanitize_input(text):
+    if not text:
+        return ''
+    if re.search(r'<|>|javascript:|on\w+=', text, re.IGNORECASE):
+        cleaned = html.escape(text)
+    cleaned = cleaned.replace('<', '').replace('>', '')
+    return cleaned.strip()
 
 # Book model
 class Book(db.Model):
@@ -13,8 +21,8 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        self.name = sanitize_input(name)
+        self.author = sanitize_input(author)
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
