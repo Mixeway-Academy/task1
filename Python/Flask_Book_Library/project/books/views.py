@@ -1,7 +1,6 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.books.models import Book
-from project.books.forms import CreateBook
 
 
 # Blueprint for books
@@ -31,10 +30,8 @@ def list_books_json():
 @books.route('/create', methods=['POST', 'GET'])
 def create_book():
     data = request.get_json()
-
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
-
     try:
+        new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
         # Add the new book to the session and commit to save to the database
         db.session.add(new_book)
         db.session.commit()
@@ -52,7 +49,7 @@ def create_book():
 def edit_book(book_id):
     # Get the book with the given ID
     book = Book.query.get(book_id)
-    
+
     # Check if the book exists
     if not book:
         print('Book not found')
@@ -61,13 +58,13 @@ def edit_book(book_id):
     try:
         # Get data from the request as JSON
         data = request.get_json()
-        
+        temp_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
-        book.year_published = data.get('year_published', book.year_published)
-        book.book_type = data.get('book_type', book.book_type)
-        
+        book.name = temp_book.name
+        book.author = temp_book.author
+        book.year_published = temp_book.year_published
+        book.book_type = temp_book.book_type
+
         # Commit the changes to the database
         db.session.commit()
         print('Book edited successfully')
@@ -84,7 +81,7 @@ def edit_book(book_id):
 def get_book_for_edit(book_id):
     # Get the book with the given ID
     book = Book.query.get(book_id)
-    
+
     # Check if the book exists
     if not book:
         print('Book not found')
@@ -97,7 +94,7 @@ def get_book_for_edit(book_id):
         'year_published': book.year_published,
         'book_type': book.book_type
     }
-    
+
     return jsonify({'success': True, 'book': book_data})
 
 
