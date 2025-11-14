@@ -1,6 +1,8 @@
 from project import db, app
 import re
 
+from project.core.rules import OnlyTextRegex, WordCountBetween
+
 
 # Book model
 class Book(db.Model):
@@ -8,11 +10,15 @@ class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
     author = db.Column(db.String(64))
-    year_published = db.Column(db.Integer) 
+    year_published = db.Column(db.Integer)
     book_type = db.Column(db.String(20))
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+        WordCountBetween(name, 2, 30, field='name')
+        WordCountBetween(author, 2, 30, field='city')
+        OnlyTextRegex(name, field='name')
+        OnlyTextRegex(author, field='city')
         self.name = name
         self.author = author
         self.year_published = year_published

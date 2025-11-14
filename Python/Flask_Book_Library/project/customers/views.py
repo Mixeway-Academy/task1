@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
+from project.core.rules import DomainValidationError
 
 
 # Blueprint for customers
@@ -29,20 +30,20 @@ def list_customers_json():
 @customers.route('/create', methods=['POST', 'GET'])
 def create_customer():
     data = request.form
-
     # Validate the form data
     if 'name' not in data or 'city' not in data or 'age' not in data:
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
-
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
-
     try:
+        new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
         # Add the new customer to the session and commit to save to the database
         db.session.add(new_customer)
         db.session.commit()
         print('Customer added succesfully')
         return redirect(url_for('customers.list_customers'))
+    except DomainValidationError as dve:
+        print('Validation error creating customer')
+        return jsonify({'error': f'{str(dve)}'}), 400
     except Exception as e:
         # Handle any exceptions, such as database errors
         db.session.rollback()
@@ -74,25 +75,24 @@ def edit_customer_data(customer_id):
 def edit_customer(customer_id):
     # Get the customer with the given ID
     customer = Customer.query.get(customer_id)
-
     # Check if the customer exists
     if not customer:
         print('Customer not found')
         return jsonify({'error': 'Customer not found'}), 404
-
     try:
-        # Get data from the request
         data = request.form
-
-        # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
-        customer.age = data['age']
-
+        temp_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+        # Get data from the request
+        customer.name = temp_customer.name
+        customer.city = temp_customer.city
+        customer.age = temp_customer.age
         # Commit the changes to the database
         db.session.commit()
         print('Customer updated succesfully')
         return redirect(url_for('customers.list_customers'))
+    except DomainValidationError as dve:
+        print('Validation error updating customer')
+        return jsonify({'error': f'{str(dve)}'}), 400
     except Exception as e:
         # Handle any exceptions
         db.session.rollback()
