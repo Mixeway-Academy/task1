@@ -1,10 +1,17 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
+from project.books.views import sanitize_field
 from project import db
 from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
-
+from datetime import date
+from project.constants import (
+    AUTHOR_NAME_RE, 
+    BOOK_NAME_RE, 
+    MAX_NAME_OR_AUTHOR_LENGTH, 
+    MAX_BOOK_TYPE_OR_STATUS_LENGTH
+)
 
 # Blueprint for loans
 loans = Blueprint('loans', __name__, template_folder='templates', url_prefix='/loans')
@@ -51,8 +58,8 @@ def create_loan():
     if request.method == 'POST':
         
         # Process form submission
-        customer_name = form.customer_name.data
-        book_name = form.book_name.data
+        customer_name = sanitize_field(form.customer_name.data)
+        book_name = sanitize_field(form.book_name.data)
         loan_date = form.loan_date.data
         return_date = form.return_date.data
 
@@ -62,6 +69,17 @@ def create_loan():
             print('Error. Book not available for loan.')
             return jsonify({'error': 'Book not available for loan.'}), 400
 
+        original_author = book.author
+        original_year_published = book.year_published
+        original_book_type = book.book_type
+        
+        error = validate_loan_inputs(
+            customer_name, book_name, loan_date, return_date,
+            original_author, original_year_published, original_book_type
+        )
+        if error:
+            return jsonify({"error": error}), 400
+        
         try:
             # Create a new loan and store original book details
             new_loan = Loan(
@@ -220,3 +238,35 @@ def get_book_details(book_name):
             # Book not found in both "loans" and "books" databases
             print('Book not found')
             return jsonify({'error': 'Book not found'}), 404
+
+def validate_loan_inputs(customer_name, book_name, loan_date, return_date, original_author, original_year_published, original_book_type):
+    """Waliduje dane wejściowe dla wypożyczenia, zwraca błąd lub None."""
+    try:
+        if len(customer_name) > MAX_NAME_OR_AUTHOR_LENGTH or not AUTHOR_NAME_RE.fullmatch(customer_name):
+            return "Invalid customer name format or length."
+        
+        if len(book_name) > MAX_NAME_OR_AUTHOR_LENGTH or not BOOK_NAME_RE.fullmatch(book_name):
+            return "Invalid book name format or length."
+            
+        if len(original_author) > MAX_NAME_OR_AUTHOR_LENGTH or not AUTHOR_NAME_RE.fullmatch(original_author):
+            return "Invalid original author name format or length."
+        
+        if len(original_book_type) > MAX_BOOK_TYPE_OR_STATUS_LENGTH:
+             return "Original book type too long."
+
+        current_year = date.today().year
+        if not isinstance(original_year_published, int) or original_year_published > current_year or original_year_published < 0:
+            return "Original year published must be between 0 and the current year."
+        
+        if not isinstance(loan_date, date):
+            return "Loan date must be a valid date object."
+        if not isinstance(return_date, date):
+            return "Return date must be a valid date object."
+        
+        if return_date < loan_date:
+            return "Return date cannot be before the loan date."
+    
+    except Exception as e:
+        return f"Validation error: {str(e)}"
+
+    return None # Brak błędów

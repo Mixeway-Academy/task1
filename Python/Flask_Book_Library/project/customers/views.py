@@ -1,7 +1,13 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
-
+from project.constants import (
+    AUTHOR_NAME_RE, 
+    CITY_RE, 
+    MAX_NAME_OR_AUTHOR_LENGTH, 
+    MAX_CITY_LENGTH
+)
+from project.books.views import sanitize_field
 
 # Blueprint for customers
 customers = Blueprint('customers', __name__, template_folder='templates', url_prefix='/customers')
@@ -29,13 +35,21 @@ def list_customers_json():
 @customers.route('/create', methods=['POST', 'GET'])
 def create_customer():
     data = request.form
-
+    
+    name = sanitize_field(data['name'])
+    city = sanitize_field(data['city'])
+    age = int(data['age'])
+    
+    error = validate_customer_inputs(name, city, age)
+    if error:
+        return jsonify({"error": error}), 400
+    
     # Validate the form data
     if 'name' not in data or 'city' not in data or 'age' not in data:
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+    new_customer = Customer(name=name, city=city, age=age)
 
     try:
         # Add the new customer to the session and commit to save to the database
@@ -83,12 +97,18 @@ def edit_customer(customer_id):
     try:
         # Get data from the request
         data = request.form
-
+        name = sanitize_field(data['name'])
+        city = sanitize_field(data['city'])
+        age = int(data['age'])
+        
+        error = validate_customer_inputs(name, city, age)
+        if error:
+            return jsonify({"error": error}), 400
+        
         # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
-        customer.age = data['age']
-
+        customer.name = name
+        customer.city = city
+        customer.age = age
         # Commit the changes to the database
         db.session.commit()
         print('Customer updated succesfully')
@@ -119,3 +139,22 @@ def delete_customer(customer_id):
         db.session.rollback()
         print('Error deleting customer')
         return jsonify({'error': f'Error deleting customer: {str(e)}'}), 500
+
+def validate_customer_inputs(name, city, age):
+    """Waliduje dane wejściowe dla klienta, zwraca błąd lub None."""
+    if len(name) > MAX_NAME_OR_AUTHOR_LENGTH:
+        return "Customer name too long."
+    
+    if not AUTHOR_NAME_RE.fullmatch(name):
+        return "Invalid customer name format."
+
+    if len(city) > MAX_CITY_LENGTH:
+        return "City name too long."
+    
+    if not CITY_RE.fullmatch(city):
+        return "Invalid city name format."
+
+    if not isinstance(age, int) or age < 0 or age > 120:
+        return "Invalid age. Must be an integer between 0 and 120."
+
+    return None

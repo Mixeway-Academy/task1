@@ -2,7 +2,8 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
-
+import bleach
+from project.constants import BOOK_NAME_RE, AUTHOR_NAME_RE, MAX_NAME_OR_AUTHOR_LENGTH
 
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
@@ -32,7 +33,20 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    name = sanitize_field(data['name'])
+    author = sanitize_field(data['author'])
+    
+    year_published = int(data['year_published'])
+    error = validate_book_inputs(name, author, year_published)
+    if error:
+        return jsonify({"error": error}), 400
+
+    new_book = Book(
+        name=name,
+        author=author, 
+        year_published=year_published, 
+        book_type=data['book_type']
+    )
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -45,7 +59,6 @@ def create_book():
         db.session.rollback()
         print('Error creating book')
         return jsonify({'error': f'Error creating book: {str(e)}'}), 500
-
 
 # Route to update an existing book
 @books.route('/<int:book_id>/edit', methods=['POST'])
@@ -63,10 +76,18 @@ def edit_book(book_id):
         data = request.get_json()
         
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
-        book.year_published = data.get('year_published', book.year_published)
-        book.book_type = data.get('book_type', book.book_type)
+        name = sanitize_field(data.get('name', book.name))
+        author = sanitize_field(data.get('author', book.author))
+        year = data.get('year_published', book.year_published)
+        book_type = data.get('book_type', book.book_type)
+        error = validate_book_inputs(name, author, year)
+        if error:
+            return jsonify({"error": error}), 400
+        
+        book.name = name  # Update if data exists, otherwise keep the same
+        book.author = author    
+        book.year_published = year
+        book.book_type = book_type
         
         # Commit the changes to the database
         db.session.commit()
@@ -139,3 +160,25 @@ def get_book_details(book_name):
         else:
             print('Book not found')
             return jsonify({'error': 'Book not found'}), 404
+        
+def sanitize_field(value: str) -> str:
+    return bleach.clean(value, tags=[], attributes={}, strip=True).strip()
+
+
+def validate_book_inputs(name, author, year_published):
+    if len(name) > MAX_NAME_OR_AUTHOR_LENGTH:
+        return "Book name too long."
+
+    if not BOOK_NAME_RE.fullmatch(name):
+        return "Invalid book name format."
+
+    if len(author) > MAX_NAME_OR_AUTHOR_LENGTH:
+        return "Author name too long."
+
+    if not AUTHOR_NAME_RE.fullmatch(author):
+        return "Invalid author name format."
+
+    if not isinstance(year_published, int):
+        return "Year must be integer."
+
+    return None
