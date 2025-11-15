@@ -4,6 +4,7 @@ from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
+from markupsafe import escape
 
 
 # Blueprint for loans
@@ -38,9 +39,22 @@ def list_customers_json():
 def list_loans():
     # Fetch all loans from the database
     loans = Loan.query.all()
+    safe_loans = [
+        {
+            "id": l.id,
+            "customer_name": escape(l.customer_name),
+            "book_name": escape(l.book_name),
+            "loan_date": escape(l.loan_date),
+            "return_date": escape(l.return_date),
+            "original_author": escape(l.original_author),
+            "original_year_published": escape(l.original_year_published),
+            "original_book_type": escape(l.original_book_type)
+        }
+        for l in loans
+    ]
     # Render the loans.html template with the loans
     print('Loans page accessed')
-    return render_template('loans.html', loans=loans, form=CreateLoan())
+    return render_template('loans.html', loans=safe_loans, form=CreateLoan())
 
 
 # Route to handle loan creation form

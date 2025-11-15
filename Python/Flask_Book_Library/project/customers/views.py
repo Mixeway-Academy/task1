@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
+from markupsafe import escape
 
 
 # Blueprint for customers
@@ -12,8 +13,17 @@ customers = Blueprint('customers', __name__, template_folder='templates', url_pr
 def list_customers():
     # Fetch all customers from the database
     customers = Customer.query.all()
+    safe_customers = [
+        {
+            "id": c.id,
+            "name": escape(c.name),
+            "author": escape(c.city),
+            "year_published": c.age
+        }
+        for c in customers
+    ]
     print('Customers page accessed')
-    return render_template('customers.html', customers=customers)
+    return render_template('customers.html', customers=safe_customers)
 
 
 # Route to fetch customers in JSON format

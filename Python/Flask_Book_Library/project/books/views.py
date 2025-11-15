@@ -2,6 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
+from markupsafe import escape
 
 
 # Blueprint for books
@@ -13,8 +14,19 @@ books = Blueprint('books', __name__, template_folder='templates', url_prefix='/b
 def list_books():
     # Fetch all books from the database
     books = Book.query.all()
+    safe_books = [
+        {
+            "id": b.id,
+            "name": escape(b.name),
+            "author": escape(b.author),
+            "year_published": b.year_published,
+            "book_type": escape(b.book_type),
+            "status": escape(b.status)
+        }
+        for b in books
+    ]
     print('Books page accessed')
-    return render_template('books.html', books=books)
+    return render_template('books.html', books=safe_books)
 
 
 # Route to fetch books in JSON format
