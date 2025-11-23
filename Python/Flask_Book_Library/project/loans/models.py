@@ -1,6 +1,8 @@
 from project import db , app
+import re
 
-
+VALID_NAME_CUSTOMER = re.compile(r'^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]{1,100}$')
+VALID_NAME_BOOK = re.compile(r'^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]{1,100}$')
 # Loan model
 class Loan(db.Model):
     __tablename__ = 'Loans'
@@ -15,6 +17,12 @@ class Loan(db.Model):
     original_book_type = db.Column(db.String(64), nullable=False)
 
     def __init__(self, customer_name, book_name, loan_date, return_date, original_author, original_year_published, original_book_type):
+
+        if not VALID_NAME_CUSTOMER.match(customer_name):
+            raise ValueError("Invalid customer name. Use only letters (including Polish), digits, and spaces (1–100 characters).")
+        if not VALID_NAME_BOOK.match(book_name):
+            raise ValueError("Invalid book name. Use only letters (including Polish), digits, and spaces (1–100 characters).")
+        
         self.customer_name = customer_name
         self.book_name = book_name
         self.loan_date = loan_date

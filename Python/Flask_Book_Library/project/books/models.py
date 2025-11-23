@@ -1,6 +1,8 @@
 from project import db, app
 import re
 
+VALID_NAME = re.compile(r'^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]{1,100}$')
+VALID_AUTHOR = re.compile(r'^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]{1,100}$')
 
 # Book model
 class Book(db.Model):
@@ -13,6 +15,11 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
+        if not VALID_NAME.match(name):
+            raise ValueError("Invalid book name. Use only letters (including Polish), digits, and spaces (1–100 characters).")
+        if not VALID_AUTHOR.match(author):
+            raise ValueError("Invalid author name. Use only letters (including Polish), digits, and spaces (1–100 characters).")
+        
         self.name = name
         self.author = author
         self.year_published = year_published
