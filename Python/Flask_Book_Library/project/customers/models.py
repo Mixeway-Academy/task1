@@ -1,5 +1,5 @@
 from project import db, app
-
+from markupsafe import escape
 
 # Customer model
 class Customer(db.Model):
@@ -10,8 +10,8 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
-        self.name = name
-        self.city = city
+        self.name = escape(name)
+        self.city = escape(city)
         self.age = age
 
     def __repr__(self):
