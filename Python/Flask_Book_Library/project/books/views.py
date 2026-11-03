@@ -1,4 +1,5 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
+import bleach
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
@@ -32,7 +33,13 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    # Sanitize inputs to prevent XSS
+    sanitized_name = bleach.clean(data['name'])
+    sanitized_author = bleach.clean(data['author'])
+    sanitized_year = bleach.clean(str(data['year_published']))
+    sanitized_type = bleach.clean(data['book_type'])
+
+    new_book = Book(name=sanitized_name, author=sanitized_author, year_published=sanitized_year, book_type=sanitized_type)
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -62,11 +69,15 @@ def edit_book(book_id):
         # Get data from the request as JSON
         data = request.get_json()
         
-        # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
-        book.year_published = data.get('year_published', book.year_published)
-        book.book_type = data.get('book_type', book.book_type)
+        # Update book details with sanitization
+        if 'name' in data:
+            book.name = bleach.clean(data['name'])
+        if 'author' in data:
+            book.author = bleach.clean(data['author'])
+        if 'year_published' in data:
+            book.year_published = bleach.clean(str(data['year_published']))
+        if 'book_type' in data:
+            book.book_type = bleach.clean(data['book_type'])
         
         # Commit the changes to the database
         db.session.commit()
@@ -77,6 +88,7 @@ def edit_book(book_id):
         db.session.rollback()
         print('Error updating book')
         return jsonify({'error': f'Error updating book: {str(e)}'}), 500
+
 
 
 # Route to fetch existing book data for editing
