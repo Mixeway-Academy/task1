@@ -23,6 +23,16 @@ public class Student {
     private String email;
     private LocalDate birthday;
 
+    public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Pole nie może być puste");
+        }
+        if (!name.matches("^[a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ\\s\\-']+$")) {
+            throw new IllegalArgumentException("Nielegalne znaki");
+        }
+        this.name = name;
+    }
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

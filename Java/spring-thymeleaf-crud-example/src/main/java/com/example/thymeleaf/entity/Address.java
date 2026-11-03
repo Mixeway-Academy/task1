@@ -28,6 +28,23 @@ public class Address {
     private String city;
     private String state;
 
+    private String validateText(String value) {
+        if (value != null && !value.trim().isEmpty()) {
+            if (!value.matches("^[a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ\\s\\-'./]+$")) {
+                throw new IllegalArgumentException("Nielegalne znaki");
+            }
+        }
+        return value;
+    }
+
+    public void setStreet(String street) { this.street = validateText(street); }
+    public void setNumber(String number) { this.number = validateText(number); }
+    public void setComplement(String complement) { this.complement = validateText(complement); }
+    public void setDistrict(String district) { this.district = validateText(district); }
+    public void setCity(String city) { this.city = validateText(city); }
+    public void setState(String state) { this.state = validateText(state); }
+
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
