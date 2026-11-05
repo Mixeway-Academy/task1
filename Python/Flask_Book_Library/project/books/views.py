@@ -2,6 +2,27 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
+import bleach
+
+
+def validate_xss(value):
+    if not isinstance(value, str):
+        return False
+
+    # Usuń wszystkie tagi HTML i potencjalnie niebezpieczne elementy
+    cleaned = bleach.clean(
+        value,
+        tags=[],
+        attributes={},
+        protocols=[],
+        strip=True
+    )
+
+    # Odrzuć dane zawierające niedozwolony HTML
+    if cleaned != value:
+        return False
+
+    return True
 
 
 # Blueprint for books
@@ -31,6 +52,19 @@ def list_books_json():
 @books.route('/create', methods=['POST', 'GET'])
 def create_book():
     data = request.get_json()
+
+    required_fields = ['name', 'author', 'year_published', 'book_type']
+
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing field: {field}'}), 400
+
+    # Walidacja pól tekstowych
+    for field in ['name', 'author', 'book_type']:
+        if not validate_xss(data[field]):
+            return jsonify({
+                'error': f'Invalid input detected in field: {field}'
+            }), 400
 
     new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
 
