@@ -2,25 +2,28 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
-import bleach
+import re
 
 
 def validate_xss(value):
     if not isinstance(value, str):
         return False
 
-    # Usuń wszystkie tagi HTML i potencjalnie niebezpieczne elementy
-    cleaned = bleach.clean(
-        value,
-        tags=[],
-        attributes={},
-        protocols=[],
-        strip=True
-    )
+    dangerous_patterns = [
+        r'<\s*script',             # <script>
+        r'<\s*/\s*script',         # </script>
+        r'<\s*iframe',             # <iframe>
+        r'<\s*svg',                # <svg>
+        r'<\s*img',                # <img>
+        r'<\s*link',               # <link>
+    ]
+    # słyszałem na wykładzie że implementacja  funkcji walidującej ma być w jak największym stopniu
+    # samodzielna. W celu lepszego pokrycia niebezpiecznych wzorców lepiej użyć biblioteki takiej jak
+    # bleach, jaka uprości eliminowanie wzorców
 
-    # Odrzuć dane zawierające niedozwolony HTML
-    if cleaned != value:
-        return False
+    for pattern in dangerous_patterns:
+        if re.search(pattern, value, re.IGNORECASE):
+            return False
 
     return True
 
