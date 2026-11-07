@@ -4,11 +4,15 @@ from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
-
+import re
 
 # Blueprint for loans
 loans = Blueprint('loans', __name__, template_folder='templates', url_prefix='/loans')
 
+def sanitize_input(text):
+    if not isinstance(text, str):
+        return text
+    return re.sub(r'<[^>]*>', '', text)
 
 # Route to provide book and customer data in JSON format
 @loans.route('/books/json', methods=['GET'])
@@ -51,10 +55,13 @@ def create_loan():
     if request.method == 'POST':
         
         # Process form submission
-        customer_name = form.customer_name.data
-        book_name = form.book_name.data
+        customer_name = sanitize_input(form.customer_name.data)
+        book_name = sanitize_input(form.book_name.data)
         loan_date = form.loan_date.data
         return_date = form.return_date.data
+
+        if not customer_name or not book_name:
+            return jsonify({'error': 'Invalid input: empty or malicious fields'}), 400
 
         # Check if the book is available
         book = Book.query.filter_by(name=book_name, status='available').first()

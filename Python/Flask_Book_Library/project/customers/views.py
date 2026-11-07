@@ -1,11 +1,18 @@
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
+import re
 
 
 # Blueprint for customers
 customers = Blueprint('customers', __name__, template_folder='templates', url_prefix='/customers')
 
+contains_html_tag = re.compile(r'<[^>]*>')
+
+def sanitize_input(text):
+    if not isinstance(text, str):
+        return text
+    return re.sub(r'<[^>]*>', '', text)
 
 # Route to display customers in HTML
 @customers.route('/', methods=['GET'])
@@ -35,7 +42,14 @@ def create_customer():
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+    safe_name = sanitize_input(data.get('name', ''))
+    safe_city = sanitize_input(data.get('city', ''))
+    safe_age = data.get('age')
+
+    if not safe_name or not safe_city:
+        return jsonify({'error': 'Invalid form data: empty or malicious fields'}), 400
+
+    new_customer = Customer(name=safe_name, city=safe_city, age=safe_age)
 
     try:
         # Add the new customer to the session and commit to save to the database
@@ -84,10 +98,25 @@ def edit_customer(customer_id):
         # Get data from the request
         data = request.form
 
+        safe_name = sanitize_input(data['name'])
+        safe_city = sanitize_input(data['city'])
+        safe_age = sanitize_input(data['age'])
+
         # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
-        customer.age = data['age']
+        new_name = data.get('name')
+        new_city = data.get('city')
+        new_age = data.get('age')
+
+        if (new_name and contains_html_tag.search(new_name)) or \
+           (new_city and contains_html_tag.search(new_city)):
+            return jsonify({'error': 'Invalid input: HTML tags and scripts are not allowed.'}), 400
+
+        if new_name is not None:
+            customer.name = new_name
+        if new_city is not None:
+            customer.city = new_city
+        if new_age is not None:
+            customer.age = new_age
 
         # Commit the changes to the database
         db.session.commit()

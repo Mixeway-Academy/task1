@@ -2,6 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
+import re
 
 
 # Blueprint for books
@@ -16,6 +17,14 @@ def list_books():
     print('Books page accessed')
     return render_template('books.html', books=books)
 
+def sanitize_input(text):
+    if not isinstance(text, str):
+        return text
+    # Usuwa tagi HTML, zapobiegając wstrzykiwaniu kodu skryptów
+    clean_text = re.sub(r'<[^>]*>', '', text)
+    return clean_text
+
+contains_html_tag = re.compile(r'<[^>]*>')
 
 # Route to fetch books in JSON format
 @books.route('/json', methods=['GET'])
@@ -32,7 +41,19 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    safe_name = sanitize_input(data.get('name', ''))
+    safe_author = sanitize_input(data.get('author', ''))
+    safe_book_type = sanitize_input(data.get('book_type', ''))
+
+    if not safe_name or not safe_author:
+        return jsonify({'error': 'Invalid input data: tags or empty fields not allowed'}), 400
+
+    new_book = Book(
+        name=safe_name, 
+        author=safe_author, 
+        year_published=data.get('year_published'), 
+        book_type=safe_book_type
+    )
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -61,12 +82,22 @@ def edit_book(book_id):
     try:
         # Get data from the request as JSON
         data = request.get_json()
+        new_name = data.get('name')
+        new_author = data.get('author')
+
+        if (new_name and contains_html_tag.search(new_name)) or \
+           (new_author and contains_html_tag.search(new_author)):
+            return jsonify({'error': 'Invalid input: HTML tags and scripts are not allowed.'}), 400
         
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
-        book.year_published = data.get('year_published', book.year_published)
-        book.book_type = data.get('book_type', book.book_type)
+        if new_name is not None:
+            book.name = new_name
+        if new_author is not None:
+            book.author = new_author
+        if data.get('year_published') is not None:
+            book.year_published = data.get('year_published')
+        if data.get('book_type') is not None:
+            book.book_type = data.get('book_type')
         
         # Commit the changes to the database
         db.session.commit()
