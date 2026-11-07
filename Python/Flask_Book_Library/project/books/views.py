@@ -2,6 +2,30 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
+import re
+
+
+def validate_xss(value):
+    if not isinstance(value, str):
+        return False
+
+    dangerous_patterns = [
+        r'<\s*script',             # <script>
+        r'<\s*/\s*script',         # </script>
+        r'<\s*iframe',             # <iframe>
+        r'<\s*svg',                # <svg>
+        r'<\s*img',                # <img>
+        r'<\s*link',               # <link>
+    ]
+    # słyszałem na wykładzie że implementacja  funkcji walidującej ma być w jak największym stopniu
+    # samodzielna. W celu lepszego pokrycia niebezpiecznych wzorców lepiej użyć biblioteki takiej jak
+    # bleach, jaka uprości eliminowanie wzorców
+
+    for pattern in dangerous_patterns:
+        if re.search(pattern, value, re.IGNORECASE):
+            return False
+
+    return True
 
 
 # Blueprint for books
@@ -31,6 +55,19 @@ def list_books_json():
 @books.route('/create', methods=['POST', 'GET'])
 def create_book():
     data = request.get_json()
+
+    required_fields = ['name', 'author', 'year_published', 'book_type']
+
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing field: {field}'}), 400
+
+    # Walidacja pól tekstowych
+    for field in ['name', 'author', 'book_type']:
+        if not validate_xss(data[field]):
+            return jsonify({
+                'error': f'Invalid input detected in field: {field}'
+            }), 400
 
     new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
 

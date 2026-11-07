@@ -18,4 +18,5 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
 
 # Uruchamiamy aplikację
-CMD ["flask", "run"]
+# CMD ["flask", "run"]
+CMD ["pytest", "-v"]
