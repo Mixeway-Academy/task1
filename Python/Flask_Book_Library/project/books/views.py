@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, request, redirect, url_for, jsonify
+from flask import render_template, Blueprint, request, redirect, url_for, jsonify, flash
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
@@ -32,10 +32,9 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
-
     try:
         # Add the new book to the session and commit to save to the database
+        new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
         db.session.add(new_book)
         db.session.commit()
         print('Book added successfully')
@@ -67,6 +66,7 @@ def edit_book(book_id):
         book.author = data.get('author', book.author)
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
+        book.validate()
         
         # Commit the changes to the database
         db.session.commit()

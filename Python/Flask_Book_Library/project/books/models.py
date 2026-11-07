@@ -1,5 +1,5 @@
 from project import db, app
-import re
+from project.validators.text_validator import validate_text
 
 
 # Book model
@@ -13,11 +13,15 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        self.name = validate_text(name)
+        self.author = validate_text(author)
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
+
+    def validate(self):
+        self.name = validate_text(self.name)
+        self.author = validate_text(self.author)
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
