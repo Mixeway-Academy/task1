@@ -48,7 +48,7 @@
                         </div>
                         <div class="col-sm-6 mb-3">
                             <label>Complement</label>
-                            <input type="text" class="form-control" placeholder="Enter the complement..." th:field="*{complement}">
+                            <input type="text" class="form-control" placeholder="Enter the complement..." th:field="*{complement}" th:classappend="${#fields.hasErrors('complement')}? 'is-invalid'">
                         </div>
                     </div>
                     <div class="row">

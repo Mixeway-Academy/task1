@@ -1,47 +1,73 @@
 package com.example.thymeleaf.dto;
 
+import com.example.thymeleaf.validation.OnlyDigits;
+import com.example.thymeleaf.validation.OnlyLetters;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@Builder(access = AccessLevel.PACKAGE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateStudentDTO {
 
-    @NotEmpty(message = "{NotEmpty.name}")
+    @OnlyLetters
+    @Size(max = 255, message = "{Size.maxText}")
+    @NotBlank(message = "{NotEmpty.name}")
     private String name;
 
     @Email
-    @NotEmpty(message = "{NotEmpty.email}")
+    @Size(max = 255, message = "{Size.maxText}")
+    @NotBlank(message = "{NotEmpty.email}")
     private String email;
 
     @NotNull(message = "{NotNull.birthday}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
-    @NotEmpty(message = "{NotEmpty.zipCode}")
+    @Pattern(regexp = "[0-9]{5}-[0-9]{3}", message = "{Pattern.zipCode}")
+    @NotBlank(message = "{NotEmpty.zipCode}")
     private String zipCode;
 
-    @NotEmpty(message = "{NotEmpty.street}")
+    @Pattern(regexp = "[^<>\\p{Cc}]*", message = "{Pattern.address}")
+    @Size(max = 255, message = "{Size.maxText}")
+    @NotBlank(message = "{NotEmpty.street}")
     private String street;
 
-    @NotEmpty(message = "{NotEmpty.number}")
+    @OnlyDigits
+    @Size(max = 255, message = "{Size.maxText}")
+    @NotBlank(message = "{NotEmpty.number}")
     private String number;
 
+    @Pattern(regexp = "[^<>\\p{Cc}]*", message = "{Pattern.address}")
+    @Size(max = 255, message = "{Size.maxText}")
     private String complement;
 
-    @NotEmpty(message = "{NotEmpty.district}")
+    @Pattern(regexp = "[^<>\\p{Cc}]*", message = "{Pattern.address}")
+    @Size(max = 255, message = "{Size.maxText}")
+    @NotBlank(message = "{NotEmpty.district}")
     private String district;
 
-    @NotEmpty(message = "{NotEmpty.city}")
+    @OnlyLetters
+    @Size(max = 255, message = "{Size.maxText}")
+    @NotBlank(message = "{NotEmpty.city}")
     private String city;
 
-    @NotEmpty(message = "{NotEmpty.state}")
+    @Pattern(regexp = "[A-Z]{2}", message = "{Pattern.state}")
+    @NotBlank(message = "{NotEmpty.state}")
     private String state;
 
 }
