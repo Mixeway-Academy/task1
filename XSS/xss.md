@@ -54,4 +54,12 @@ Wykonanie wstrzykniętego kodu JavaScript w kontekście strony:
 
 ## Jak podatność została naprawiona
 
-TODO
+Podatność naprawiono na dwóch poziomach.
+
+**Frontend** - w szablonie `students.html` przywrócono escapowanie znaków, czyli `th:utext` (wstawianie surowego HTML) zamieniono na `th:text`. Dane użytkownika trafiają na stronę jako zwykły tekst, a znaki `<` i `>` są zamieniane na encje HTML, więc przeglądarka nie interpretuje ich jako kodu.
+
+![Naprawa po stronie frontendu](./img/xss-fix-frontend.png)
+
+**Backend** - do klasy `CreateStudentDTO` dodano walidację poszczególnych pól. Ponieważ ta sama klasa jest używana przy tworzeniu i przy edycji studenta, payload jest odrzucany w obu przypadkach i nie zapisuje się do bazy. Dodatkowo napisano test regresyjny `CreateStudentDtoValidationTest`, który sprawdza, czy walidacja działa zgodnie z zamierzeniem.
+
+![Naprawa po stronie backendu](./img/xss-fix-backend.png)
