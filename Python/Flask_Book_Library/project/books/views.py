@@ -2,8 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
-
-
+import bleach
 # Blueprint for books
 books = Blueprint('books', __name__, template_folder='templates', url_prefix='/books')
 
@@ -23,7 +22,9 @@ def list_books_json():
     # Fetch all books from the database and convert to JSON
     books = Book.query.all()
     # Create a list of dictionaries representing each book with the required fields
-    book_list = [{'name': book.name, 'author': book.author, 'year_published': book.year_published, 'book_type': book.book_type} for book in books]
+    book_list = [
+        {'name': book.name, 'author': book.author, 'year_published': book.year_published, 'book_type': book.book_type}
+        for book in books]
     return jsonify(books=book_list)
 
 
@@ -32,7 +33,12 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    new_book = Book(
+        name=bleach.clean(data['name'], tags=[], attributes={}, strip=True),
+        author=bleach.clean(data['author'], tags=[], attributes={}, strip=True),
+        year_published=data['year_published'],
+        book_type=bleach.clean(data['book_type'], tags=[], attributes={}, strip=True)
+    )
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -52,7 +58,7 @@ def create_book():
 def edit_book(book_id):
     # Get the book with the given ID
     book = Book.query.get(book_id)
-    
+
     # Check if the book exists
     if not book:
         print('Book not found')
@@ -61,13 +67,13 @@ def edit_book(book_id):
     try:
         # Get data from the request as JSON
         data = request.get_json()
-        
+
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
+        book.name = bleach.clean(data.get('name', book.name), tags=[], attributes={}, strip=True)
+        book.author = bleach.clean(data.get('author', book.author), tags=[], attributes={}, strip=True)
         book.year_published = data.get('year_published', book.year_published)
-        book.book_type = data.get('book_type', book.book_type)
-        
+        book.book_type = bleach.clean(data.get('book_type', book.book_type), tags=[], attributes={}, strip=True)
+
         # Commit the changes to the database
         db.session.commit()
         print('Book edited successfully')
@@ -84,7 +90,7 @@ def edit_book(book_id):
 def get_book_for_edit(book_id):
     # Get the book with the given ID
     book = Book.query.get(book_id)
-    
+
     # Check if the book exists
     if not book:
         print('Book not found')
@@ -97,7 +103,7 @@ def get_book_for_edit(book_id):
         'year_published': book.year_published,
         'book_type': book.book_type
     }
-    
+
     return jsonify({'success': True, 'book': book_data})
 
 
@@ -125,17 +131,17 @@ def delete_book(book_id):
 # Route to get book details based on book name
 @books.route('/details/<string:book_name>', methods=['GET'])
 def get_book_details(book_name):
-        # Find the book by its name
-        book = Book.query.filter_by(name=book_name).first()
+    # Find the book by its name
+    book = Book.query.filter_by(name=book_name).first()
 
-        if book:
-            book_data = {
-                'name': book.name,
-                'author': book.author,
-                'year_published': book.year_published,
-                'book_type': book.book_type
-            }
-            return jsonify(book=book_data)
-        else:
-            print('Book not found')
-            return jsonify({'error': 'Book not found'}), 404
+    if book:
+        book_data = {
+            'name': book.name,
+            'author': book.author,
+            'year_published': book.year_published,
+            'book_type': book.book_type
+        }
+        return jsonify(book=book_data)
+    else:
+        print('Book not found')
+        return jsonify({'error': 'Book not found'}), 404
