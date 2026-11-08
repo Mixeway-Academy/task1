@@ -4,6 +4,7 @@ from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
+import bleach
 
 
 # Blueprint for loans
@@ -65,13 +66,13 @@ def create_loan():
         try:
             # Create a new loan and store original book details
             new_loan = Loan(
-                customer_name=customer_name,
-                book_name=book_name,
+                customer_name=bleach.clean(customer_name, tags=[], attributes={}, strip=True),
+                book_name=bleach.clean(book_name, tags=[], attributes={}, strip=True),
                 loan_date=loan_date,
                 return_date=return_date,
-                original_author=book.author,
+                original_author=bleach.clean(book.author, tags=[], attributes={}, strip=True),
                 original_year_published=book.year_published,
-                original_book_type=book.book_type
+                original_book_type=bleach.clean(book.book_type, tags=[], attributes={}, strip=True)
             )
 
             # Add the new loan to the database
@@ -141,11 +142,11 @@ def delete_loan(loan_id):
     try:
         # Retrieve the book associated with the loan
         book = Book(
-            name=loan.book_name,
-            author=loan.original_author,
+            name=bleach.clean(loan.book_name, tags=[], attributes={}, strip=True),
+            author=bleach.clean(loan.original_author, tags=[], attributes={}, strip=True),
             year_published=loan.original_year_published,
-            book_type=loan.original_book_type,
-            status='available'  
+            book_type=bleach.clean(loan.original_book_type, tags=[], attributes={}, strip=True),
+            status='available'
         )
 
         # Add the book to the database
