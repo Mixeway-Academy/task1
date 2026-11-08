@@ -1,7 +1,7 @@
 package com.example.thymeleaf.dto;
 
 import com.example.thymeleaf.validation.OnlyDigits;
-import com.example.thymeleaf.validation.OnlyLetters;
+import com.example.thymeleaf.validation.ValidName;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +24,7 @@ import java.time.LocalDate;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateStudentDTO {
 
-    @OnlyLetters
+    @ValidName
     @Size(max = 255, message = "{Size.maxText}")
     @NotBlank(message = "{NotEmpty.name}")
     private String name;
@@ -61,7 +61,7 @@ public class CreateStudentDTO {
     @NotBlank(message = "{NotEmpty.district}")
     private String district;
 
-    @OnlyLetters
+    @ValidName
     @Size(max = 255, message = "{Size.maxText}")
     @NotBlank(message = "{NotEmpty.city}")
     private String city;

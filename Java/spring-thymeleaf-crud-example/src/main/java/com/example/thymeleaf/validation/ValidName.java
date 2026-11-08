@@ -13,10 +13,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(FIELD)
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
-@Pattern(regexp = "\\p{L}+")
+@Pattern(regexp = "[\\p{L} ]+")
 @ReportAsSingleViolation
-public @interface OnlyLetters {
-    String message() default "{Pattern.letters}";
+public @interface ValidName {
+    String message() default "{Pattern.name}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

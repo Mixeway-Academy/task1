@@ -55,7 +55,7 @@ class CreateStudentDtoValidationTest {
         // then
         assertThat(violations).singleElement().satisfies(violation -> {
             assertThat(violation.getPropertyPath()).hasToString("name");
-            assertThat(violation.getMessage()).isEqualTo("Must contain only letters");
+            assertThat(violation.getMessage()).isEqualTo("Must contain only letters and spaces");
         });
     }
 
