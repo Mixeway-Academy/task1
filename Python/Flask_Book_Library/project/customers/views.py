@@ -35,14 +35,17 @@ def create_customer():
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
-
     try:
+        new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
         # Add the new customer to the session and commit to save to the database
         db.session.add(new_customer)
         db.session.commit()
         print('Customer added succesfully')
         return redirect(url_for('customers.list_customers'))
+    except ValueError as e:
+        db.session.rollback()
+        print('Validation error creating customer')
+        return jsonify({'error': f'Validation error: {str(e)}'}), 400
     except Exception as e:
         # Handle any exceptions, such as database errors
         db.session.rollback()
@@ -84,15 +87,19 @@ def edit_customer(customer_id):
         # Get data from the request
         data = request.form
 
-        # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
-        customer.age = data['age']
+        # Validate and update customer details
+        customer.name = Customer.validate_name(data['name'])
+        customer.city = Customer.validate_city(data['city'])
+        customer.age = Customer.validate_age(data['age'])
 
         # Commit the changes to the database
         db.session.commit()
         print('Customer updated succesfully')
         return redirect(url_for('customers.list_customers'))
+    except ValueError as e:
+        db.session.rollback()
+        print('Validation error updating customer')
+        return jsonify({'error': f'Validation error: {str(e)}'}), 400
     except Exception as e:
         # Handle any exceptions
         db.session.rollback()

@@ -32,14 +32,17 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
-
     try:
+        new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
         # Add the new book to the session and commit to save to the database
         db.session.add(new_book)
         db.session.commit()
         print('Book added successfully')
         return redirect(url_for('books.list_books'))
+    except ValueError as e:
+        db.session.rollback()
+        print('Validation error creating book')
+        return jsonify({'error': f'Validation error: {str(e)}'}), 400
     except Exception as e:
         # Handle any exceptions, such as database errors
         db.session.rollback()
@@ -62,16 +65,20 @@ def edit_book(book_id):
         # Get data from the request as JSON
         data = request.get_json()
         
-        # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
-        book.year_published = data.get('year_published', book.year_published)
-        book.book_type = data.get('book_type', book.book_type)
+        # Validate and update book details
+        book.name = Book.validate_name(data.get('name', book.name))
+        book.author = Book.validate_author(data.get('author', book.author))
+        book.year_published = Book.validate_year_published(data.get('year_published', book.year_published))
+        book.book_type = Book.validate_book_type(data.get('book_type', book.book_type))
         
         # Commit the changes to the database
         db.session.commit()
         print('Book edited successfully')
         return jsonify({'message': 'Book updated successfully'})
+    except ValueError as e:
+        db.session.rollback()
+        print('Validation error updating book')
+        return jsonify({'error': f'Validation error: {str(e)}'}), 400
     except Exception as e:
         # Handle any exceptions
         db.session.rollback()
