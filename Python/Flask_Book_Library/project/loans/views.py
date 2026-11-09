@@ -4,6 +4,7 @@ from project.loans.models import Loan
 from project.loans.forms import CreateLoan
 from project.books.models import Book
 from project.customers.models import Customer
+from project.validators import ValidationError
 
 
 # Blueprint for loans
@@ -61,6 +62,10 @@ def create_loan():
         if not book:
             print('Error. Book not available for loan.')
             return jsonify({'error': 'Book not available for loan.'}), 400
+        customer = Customer.query.filter_by(name=customer_name).first()
+        if not customer:
+            print('Error. Customer not found.')
+            return jsonify({'error': 'Customer not found.'}), 400
 
         try:
             # Create a new loan and store original book details
@@ -85,6 +90,10 @@ def create_loan():
 
             # Redirect to the list of loans
             return redirect(url_for('loans.list_loans'))
+        except ValidationError as e:
+            db.session.rollback()
+            print('Invalid loan data')
+            return jsonify({'error': str(e)}), 400
         except Exception as e:
             db.session.rollback()
             error_message = f'Error creating loan: {str(e)}'

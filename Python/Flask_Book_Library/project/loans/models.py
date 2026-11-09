@@ -1,5 +1,20 @@
-from project import db , app
+from datetime import date, datetime
 
+from sqlalchemy.orm import validates
+
+from project import db, app
+from project.validators import (
+  ValidationError,
+  validate_book_title,
+  validate_person_name,
+  validate_year,
+  validate_choice,
+)
+from project.books.models import BOOK_TYPES
+
+
+def _as_date(value):
+    return value.date() if isinstance(value, datetime) else value
 
 # Loan model
 class Loan(db.Model):
@@ -22,6 +37,40 @@ class Loan(db.Model):
         self.original_author = original_author
         self.original_year_published = original_year_published
         self.original_book_type = original_book_type
+
+    @validates('customer_name')
+    def validate_customer_name(self, key, value):
+        return validate_person_name(value, 'Customer name')
+
+    @validates('book_name')
+    def validate_book_name(self, key, value):
+        return validate_book_title(value, 'Book name')
+
+    @validates('loan_date')
+    def validate_loan_date(self, key, value):
+        if not isinstance(value, date):
+            raise ValidationError('Loan date must be a valid date')
+        return value
+
+    @validates('return_date')
+    def validate_return_date(self, key, value):
+        if not isinstance(value, date):
+            raise ValidationError('Return date must be a valid date')
+        if self.loan_date is not None and _as_date(value) < _as_date(self.loan_date):
+            raise ValidationError('Return date cannot be earlier than loan date')
+        return value
+
+    @validates('original_author')
+    def validate_original_author(self, key, value):
+        return validate_person_name(value, 'Author')
+
+    @validates('original_year_published')
+    def validate_original_year_published(self, key, value):
+        return validate_year(value, 'Year published')
+
+    @validates('original_book_type')
+    def validate_original_book_type(self, key, value):
+        return validate_choice(value, 'Book type', BOOK_TYPES)
 
     def __repr__(self):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"

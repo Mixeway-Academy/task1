@@ -2,6 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, jsonif
 from project import db
 from project.books.models import Book
 from project.books.forms import CreateBook
+from project.validators import ValidationError
 
 
 # Blueprint for books
@@ -30,10 +31,14 @@ def list_books_json():
 # Route to create a new book
 @books.route('/create', methods=['POST', 'GET'])
 def create_book():
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
-
+    try:
+        new_book = Book(name=data.get('name'), author=data.get('author'),
+                        year_published=data.get('year_published'), book_type=data.get('book_type'))
+    except ValidationError as e:
+        print('Invalid book data')
+        return jsonify({'error': str(e)}), 400
     try:
         # Add the new book to the session and commit to save to the database
         db.session.add(new_book)
@@ -72,6 +77,10 @@ def edit_book(book_id):
         db.session.commit()
         print('Book edited successfully')
         return jsonify({'message': 'Book updated successfully'})
+    except ValidationError as e:
+        db.session.rollback()
+        print('Invalid book data')
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
         # Handle any exceptions
         db.session.rollback()
