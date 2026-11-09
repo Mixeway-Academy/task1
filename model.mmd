@@ -1,0 +1,73 @@
+classDiagram
+    direction LR
+
+    namespace Customers {
+        class Customer {
+            <<Aggregate Root>>
+            +UUID id
+            +String firstName
+            +String lastName
+            +String pesel
+            +Address address
+            +changeAddress(Address)
+        }
+        class Address {
+            <<Value Object>>
+            +String street
+            +String city
+            +String postalCode
+            +String country
+        }
+    }
+
+    namespace Accounts {
+        class BankAccount {
+            <<Aggregate Root>>
+            +UUID id
+            +String number
+            +UUID ownerId
+            +Balance balance
+            +AccountStatus status
+            +debit(amount)
+            +credit(amount)
+        }
+        class AccountOperation {
+            <<Entity>>
+            +UUID id
+            +OperationType type
+            +Decimal amount
+            +UUID transferId
+            +DateTime createdAt
+        }
+        class Balance {
+            <<Value Object>>
+            +Decimal amount
+            +String currency
+        }
+    }
+
+    namespace Transfers {
+        class Transfer {
+            <<Aggregate Root>>
+            +UUID id
+            +UUID sourceAccountId
+            +String targetAccount
+            +TransferAmount amount
+            +TransferStatus status
+            +authorize(mfaCode)
+            +execute()
+            +reject(reason)
+        }
+        class TransferAmount {
+            <<Value Object>>
+            +Decimal amount
+            +String currency
+        }
+    }
+
+    Customer *-- Address
+    BankAccount *-- Balance
+    BankAccount "1" *-- "0..*" AccountOperation
+    Transfer *-- TransferAmount
+    BankAccount ..> Customer : ownerId
+    Transfer ..> BankAccount : sourceAccountId
