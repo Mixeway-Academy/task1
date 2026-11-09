@@ -1,3 +1,5 @@
+import re
+
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.books.models import Book
@@ -31,6 +33,12 @@ def list_books_json():
 @books.route('/create', methods=['POST', 'GET'])
 def create_book():
     data = request.get_json()
+
+    # for field in ('name', 'author', 'year_published', 'book_type'):
+    #     value = data.get(field, '')
+    #     if value and re.search(r'<[^>]+>', value):
+    #         return jsonify({'error': f"Field'{field}' can not contain HTML tags!"}), 400
+
 
     new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
 

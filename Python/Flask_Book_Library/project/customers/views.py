@@ -1,3 +1,5 @@
+import re
+
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
@@ -34,6 +36,12 @@ def create_customer():
     if 'name' not in data or 'city' not in data or 'age' not in data:
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
+
+    for field in ('name', 'city', 'age'):
+        value = data.get(field, '')
+        if value and re.search(r'<[^>]+>', value):
+            return jsonify({'error': f"Field'{field}' can not contain HTML tags!"}), 400
+
 
     new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
 
