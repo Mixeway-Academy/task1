@@ -1,4 +1,7 @@
+from sqlalchemy.orm import validates
+
 from project import db, app
+from project.validators import validate_age, validate_city, validate_person_name
 
 
 # Customer model
@@ -13,6 +16,19 @@ class Customer(db.Model):
         self.name = name
         self.city = city
         self.age = age
+
+    # Input validation on every assignment (constructor and edits).
+    @validates('name')
+    def _check_name(self, key, value):
+        return validate_person_name(value, key)
+
+    @validates('city')
+    def _check_city(self, key, value):
+        return validate_city(value, key)
+
+    @validates('age')
+    def _check_age(self, key, value):
+        return validate_age(value, key)
 
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"

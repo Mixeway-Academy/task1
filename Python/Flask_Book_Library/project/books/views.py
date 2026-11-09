@@ -30,9 +30,15 @@ def list_books_json():
 # Route to create a new book
 @books.route('/create', methods=['POST', 'GET'])
 def create_book():
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    try:
+        # The model validates input on creation
+        new_book = Book(name=data.get('name'), author=data.get('author'),
+                        year_published=data.get('year_published'), book_type=data.get('book_type'))
+    except ValueError as e:
+        print('Invalid book data')
+        return jsonify({'error': f'Invalid input: {e}'}), 400
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -72,6 +78,11 @@ def edit_book(book_id):
         db.session.commit()
         print('Book edited successfully')
         return jsonify({'message': 'Book updated successfully'})
+    except ValueError as e:
+        # Invalid input - reject the change
+        db.session.rollback()
+        print('Invalid book data')
+        return jsonify({'error': f'Invalid input: {e}'}), 400
     except Exception as e:
         # Handle any exceptions
         db.session.rollback()
