@@ -86,3 +86,8 @@ W celu zapewnienia bezpieczeństwa i spójności danych, przyjęto rygorystyczne
 | **Uzytkownik** (Encja) | `idUzytkownika` <br> `login` | UUID <br> String | `login` musi mieć min. 8 znaków (alfanumeryczne). |
 | **DaneLogowania** (VO) | `hashHasla` <br> `sol` | String <br> String | Hasła nigdy nie są przechowywane jawnym tekstem. `hashHasla` to wynik silnej funkcji (np. Argon2id lub bcrypt). |
 | **TokenSesji** (VO) | `tokenID` <br> `dataWygasniecia` | String (JWT) <br> DateTime | `dataWygasniecia` nie może być dłuższa niż np. 15 minut od wydania. Wykonanie operacji (przelew) sprawdza czy token jest nadal ważny. |
+
+### Schemat modelu
+Na diagramie zaprezentowano zdefiniowane encje i atrybuty z podziałem na trzy ustalone na początku konteksty.
+<img width="885" height="665" alt="image" src="https://github.com/user-attachments/assets/c8deb3ac-9624-4790-9d5f-50be329f2c41" />
+
