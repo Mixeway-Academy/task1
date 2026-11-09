@@ -1,0 +1,125 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+---
+classDiagram
+    direction TB
+
+    namespace Uwierzytelnienie {
+        class Uzytkownik {
+            <<Aggregate Root / Encja>>
+            +UzytkownikId id
+            +Login login
+            +HashHasla hashHasla
+            +int nieudaneProby
+            +StatusUzytkownika status
+            +KlientId klientId
+            +zaloguj(haslo) Sesja
+            +zablokuj()
+        }
+        class Sesja {
+            <<Value Object>>
+            +String token
+            +DateTime wygasa
+        }
+    }
+
+    namespace ZarzadzanieKontem {
+        class Klient {
+            <<Aggregate Root / Encja>>
+            +KlientId id
+            +String imie
+            +String nazwisko
+            +Pesel pesel
+            +Email email
+            +Adres adres
+            +zmienAdres(Adres)
+        }
+        class KontoBankowe {
+            <<Aggregate Root / Encja>>
+            +NumerRachunku numer
+            +KlientId wlasciciel
+            +Kwota saldo
+            +StatusKonta status
+            +List~Operacja~ historia
+            +obciaz(Kwota, PrzelewId)
+            +uznaj(Kwota, PrzelewId)
+        }
+        class Operacja {
+            <<Encja - wewnątrz agregatu>>
+            +OperacjaId id
+            +TypOperacji typ
+            +Kwota kwota
+            +DateTime data
+            +PrzelewId przelewId
+        }
+        class Adres {
+            <<Value Object>>
+            +String ulica
+            +String numerDomu
+            +KodPocztowy kodPocztowy
+            +String miasto
+            +String kraj
+        }
+        class Pesel {
+            <<Value Object>>
+            +String wartosc
+        }
+        class Email {
+            <<Value Object>>
+            +String wartosc
+        }
+    }
+
+    namespace Przelewy {
+        class Przelew {
+            <<Aggregate Root / Encja>>
+            +PrzelewId id
+            +NumerRachunku nadawca
+            +NumerRachunku odbiorca
+            +NazwaOdbiorcy nazwaOdbiorcy
+            +Kwota kwota
+            +TytulPrzelewu tytul
+            +StatusPrzelewu status
+            +DateTime dataZlecenia
+            +zlec()
+            +zrealizuj()
+            +odrzuc(powod)
+        }
+        class TytulPrzelewu {
+            <<Value Object>>
+            +String wartosc
+        }
+        class NazwaOdbiorcy {
+            <<Value Object>>
+            +String wartosc
+        }
+    }
+
+    class NumerRachunku {
+        <<Value Object - wspólny>>
+        +String iban
+    }
+    class Kwota {
+        <<Value Object - wspólny>>
+        +Decimal wartosc
+        +Waluta waluta
+    }
+
+    Uzytkownik "1" --> "1" Klient : klientId
+    Uzytkownik ..> Sesja : tworzy
+    Klient "1" *-- "1" Adres
+    Klient *-- Pesel
+    Klient *-- Email
+    Klient "1" --> "1..*" KontoBankowe : posiada
+    KontoBankowe *-- NumerRachunku
+    KontoBankowe *-- Kwota : saldo
+    KontoBankowe "1" *-- "0..*" Operacja : historia
+    Przelew *-- Kwota
+    Przelew *-- TytulPrzelewu
+    Przelew *-- NazwaOdbiorcy
+    Przelew --> NumerRachunku : nadawca / odbiorca
+    Przelew ..> KontoBankowe : obciaz() / uznaj()

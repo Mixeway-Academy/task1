@@ -1,6 +1,15 @@
-from project import db, app
-import re
+from sqlalchemy.orm import validates
 
+from project import db, app
+from project.validators import (
+  validate_book_title,
+  validate_person_name,
+  validate_year,
+  validate_choice,
+)
+
+BOOK_TYPES = ('2days', '5days', '10days')
+BOOK_STATUSES = ('available', 'borrowed')
 
 # Book model
 class Book(db.Model):
@@ -18,6 +27,26 @@ class Book(db.Model):
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
+
+    @validates('name')
+    def validate_name(self, key, value):
+        return validate_book_title(value, 'Book name')
+
+    @validates('author')
+    def validate_author(self, key, value):
+        return validate_person_name(value, 'Author')
+
+    @validates('year_published')
+    def validate_year_published(self, key, value):
+        return validate_year(value, 'Year published')
+
+    @validates('book_type')
+    def validate_book_type(self, key, value):
+        return validate_choice(value, 'Book type', BOOK_TYPES)
+
+    @validates('status')
+    def validate_status(self, key, value):
+        return validate_choice(value, 'Status', BOOK_STATUSES)
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
