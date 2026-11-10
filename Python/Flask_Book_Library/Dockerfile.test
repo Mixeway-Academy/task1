@@ -1,0 +1,14 @@
+# Obraz do uruchamiania testów jednostkowych poprawki Stored XSS
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Testy używają bazy SQLite w pamięci - nie dotykają project/data.sqlite
+ENV DATABASE_URL=sqlite:///:memory:
+
+CMD ["python", "-m", "unittest", "discover", "-s", "tests", "-t", ".", "-v"]

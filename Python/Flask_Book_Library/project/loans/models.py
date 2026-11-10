@@ -1,4 +1,6 @@
-from project import db , app
+from sqlalchemy.orm import validates
+from project import db, app
+from project.validators import validate_text, validate_book_type
 
 
 # Loan model
@@ -22,6 +24,19 @@ class Loan(db.Model):
         self.original_author = original_author
         self.original_year_published = original_year_published
         self.original_book_type = original_book_type
+
+    # Walidacja wykonywana przy tworzeniu obiektu i przy każdej zmianie pola
+    @validates('customer_name', 'book_name')
+    def validate_text_fields(self, key, value):
+        return validate_text(key, value)
+
+    @validates('original_author')
+    def validate_author(self, key, value):
+        return validate_text(key, value, required=False)
+
+    @validates('original_book_type')
+    def validate_type(self, key, value):
+        return validate_book_type(key, value)
 
     def __repr__(self):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"
