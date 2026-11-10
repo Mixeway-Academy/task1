@@ -20,7 +20,7 @@ Ponizsze screenshoty przedstawiają wykorzystanie podatności w tym samym formul
 
 # Bug fix
 
-1. Usunąć keyword safe (ale to nie waliduje po stronie backendu)
+1. Mozna usunąć keyword safe (ale to nie waliduje po stronie backendu)
 2. Walidować input po stronie backendu np. poprzez regex podczas tworzenia obiektu.
 3. Moznaby tez walidowac podczas edycji obiektu, ale z tego co rozumiem nie jest to clue tego zadania
 
