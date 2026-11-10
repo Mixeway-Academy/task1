@@ -1,3 +1,4 @@
+from project.validators import validate_text
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.books.models import Book
@@ -32,14 +33,19 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    try: 
+        new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
 
-    try:
         # Add the new book to the session and commit to save to the database
         db.session.add(new_book)
         db.session.commit()
         print('Book added successfully')
         return redirect(url_for('books.list_books'))
+    
+    except (ValueError, KeyError) as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+    
     except Exception as e:
         # Handle any exceptions, such as database errors
         db.session.rollback()
@@ -63,8 +69,8 @@ def edit_book(book_id):
         data = request.get_json()
         
         # Update book details
-        book.name = data.get('name', book.name)  # Update if data exists, otherwise keep the same
-        book.author = data.get('author', book.author)
+        book.name = validate_text(data.get('name', book.name))  # Update if data exists, otherwise keep the same
+        book.author = validate_text(data.get('author', book.author))
         book.year_published = data.get('year_published', book.year_published)
         book.book_type = data.get('book_type', book.book_type)
         
@@ -72,6 +78,11 @@ def edit_book(book_id):
         db.session.commit()
         print('Book edited successfully')
         return jsonify({'message': 'Book updated successfully'})
+
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({'Error': str(e)}), 400
+    
     except Exception as e:
         # Handle any exceptions
         db.session.rollback()

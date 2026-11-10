@@ -1,3 +1,4 @@
+from project.validators import validate_text
 from project import db, app
 import re
 
@@ -13,15 +14,14 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        self.name = validate_text(name)
+        self.author = validate_text(author)
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
-
 
 with app.app_context():
     db.create_all()
