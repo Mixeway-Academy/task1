@@ -1,9 +1,11 @@
 from project import db, app
+from sqlalchemy.orm import validates
+from project.core.validators import validate_text
 
 
 # Customer model
 class Customer(db.Model):
-    __tablename__ = 'customers'
+    __tablename__ = "customers"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
     city = db.Column(db.String(64))
@@ -13,6 +15,10 @@ class Customer(db.Model):
         self.name = name
         self.city = city
         self.age = age
+
+    @validates("name", "city")
+    def validate_text_fields(self, key, value):
+        return validate_text(value)
 
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"
