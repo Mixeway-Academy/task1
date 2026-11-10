@@ -1,7 +1,7 @@
-# **Description of the task 1.1**
-The goal of the first task is to design a banking system using Domain-Driven Design (DDD) approach. This approach to software development focuses on defining and modelling the business domain and defining bounded contexts. Within each bounded context, related entities (which represent real life objects) and value objects (which do not have their own identities) are grouped into aggregates which ensures consistency by enforcing business rules. 
+# **Opis zadania 1.1**
+Celem pierwszego zadania było zaprojektowanie systemu bankowego z wykorzystaniem podejścia Domain-Driven Design (DDD). To podejście do tworzenia oprogramowania, które skupia się na definiowaniu i modelowaniu domeny biznesowej (business domain) i określaniu bounded contextów. W ramach kazdego bounded contextu odpowiadające encje (reprezentujące obiekty z zycia rzeczywistego) oraz value objects (nieposiadające własnej tozsamości) są zgrupowane w agregaty, co zapewnia spójność poprzez stosowanie reguł biznesowych.
 
-An example for a banking system defined with DDD:
+Przykład systemu bankowego zdefiniowanego przy użyciu DDD:
 ## **Domain:** 
 Banking
 
@@ -9,7 +9,7 @@ Banking
 Account management, Transfers, Authentication
 
 ### 1. Account Management
-It describes bank accounts and their owners.
+Opisuje rachunki bankowe i ich właścicieli.
 
 **Aggregate:** Bank Account
 
@@ -67,7 +67,7 @@ It describes bank accounts and their owners.
 | iban | String | Valid IBAN |
 
 ### 2. Transfers
-It describes transfers between accounts.
+Opisuje przelewy między rachunkami.
 
 **Aggregate:** Transfer
 
@@ -106,7 +106,7 @@ It describes transfers between accounts.
 | iban | String | Valid IBAN |
 
 ### 3. Authentication
-It describes how users log in to the banking system and how their authentication sessions are managed.
+Opisuje, w jaki sposób użytkownicy logują się do systemu bankowego i jak zarządzane są ich sesje uwierzytelniające.
 
 **Aggregate:** User Credentials
 
@@ -156,6 +156,6 @@ It describes how users log in to the banking system and how their authentication
 
 ## Banking System – DDD Diagram
 
-The following diagram illustrates the Domain-Driven Design structure of the banking system, including bounded contexts,aggregates, entities, and value objects.
+Poniższy schemat przedstawia strukturę systemu bankowego opracowaną zgodnie z podejściem Domain-Driven Design, obejmującą konteksty ograniczone, agregaty, encje i obiekty wartościowe.
 
 ![Banking System DDD Diagram](diagram/ddd-banking-diagram.png)
