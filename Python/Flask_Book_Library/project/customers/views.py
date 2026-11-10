@@ -35,14 +35,18 @@ def create_customer():
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
-
     try:
         # Add the new customer to the session and commit to save to the database
+        new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
         db.session.add(new_customer)
         db.session.commit()
         print('Customer added succesfully')
         return redirect(url_for('customers.list_customers'))
+    except ValueError as e:
+        # for xss task 2
+        db.session.rollback()
+        print('Invalid customer data')
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
         # Handle any exceptions, such as database errors
         db.session.rollback()

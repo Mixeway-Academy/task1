@@ -1,0 +1,1 @@
+BRAK - przepraszam troche za duzo rzeczy projektowych mam i nie dalem tego rady zrobic.

@@ -1,4 +1,16 @@
 from project import db, app
+import re
+
+
+# Whitelist: letters, digits, spaces and basic punctuation only (blocks HTML/JS)
+CUSTOMER_TEXT_RE = re.compile(r'^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż .,\-]{1,64}$')
+
+
+def validate_customer_text(value, field_name):
+    if not isinstance(value, str) or not CUSTOMER_TEXT_RE.match(value):
+        raise ValueError(
+            f'Invalid {field_name}: only letters, digits, spaces and .,- are allowed (max 64 chars)'
+        )
 
 
 # Customer model
@@ -10,6 +22,8 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
+        validate_customer_text(name, 'name')
+        validate_customer_text(city, 'city')
         self.name = name
         self.city = city
         self.age = age
