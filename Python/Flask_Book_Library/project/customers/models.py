@@ -1,5 +1,5 @@
 from project import db, app
-
+import re
 
 # Customer model
 class Customer(db.Model):
@@ -10,6 +10,13 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
+        safe_pattern = re.compile(r'^[\w\s.,-]*$')
+
+        if not safe_pattern.match(name):
+            raise ValueError("Niedozwolone znaki w nazwie klienta.")
+        if not safe_pattern.match(city):
+            raise ValueError("Niedozwolone znaki w nazwie miasta.")
+
         self.name = name
         self.city = city
         self.age = age
