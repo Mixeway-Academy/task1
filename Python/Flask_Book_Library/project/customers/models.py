@@ -1,4 +1,6 @@
 from project import db, app
+from project.input_validation import validate_plain_text
+from sqlalchemy.orm import validates
 
 
 # Customer model
@@ -13,6 +15,10 @@ class Customer(db.Model):
         self.name = name
         self.city = city
         self.age = age
+
+    @validates('name', 'city')
+    def validate_text(self, key, value):
+        return validate_plain_text(key, value)
 
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"

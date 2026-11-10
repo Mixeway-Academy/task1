@@ -85,6 +85,9 @@ def create_loan():
 
             # Redirect to the list of loans
             return redirect(url_for('loans.list_loans'))
+        except ValueError as e:
+            db.session.rollback()
+            return jsonify({'error': f'Invalid loan data: {str(e)}'}), 400
         except Exception as e:
             db.session.rollback()
             error_message = f'Error creating loan: {str(e)}'
@@ -157,6 +160,9 @@ def delete_loan(loan_id):
         print('Loan deleted successfully')
         # Redirect to the list of loans
         return redirect(url_for('loans.list_loans'))
+    except ValueError:
+        db.session.rollback()
+        return jsonify({'error': 'Stored loan data needs review before the book can be restored.'}), 409
     except Exception as e:
         db.session.rollback()
         error_message = f'Error deleting loan: {str(e)}'
