@@ -1,3 +1,4 @@
+from project.validators import validate_text
 from project import db, app
 
 
@@ -10,8 +11,8 @@ class Customer(db.Model):
     age = db.Column(db.Integer)
 
     def __init__(self, name, city, age):
-        self.name = name
-        self.city = city
+        self.name = validate_text(name)
+        self.city = validate_text(city)
         self.age = age
 
     def __repr__(self):

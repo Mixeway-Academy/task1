@@ -1,3 +1,4 @@
+from project.validators import validate_text
 from flask import render_template, Blueprint, request, redirect, url_for, jsonify
 from project import db
 from project.customers.models import Customer
@@ -35,14 +36,19 @@ def create_customer():
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
-
     try:
+        new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
+
         # Add the new customer to the session and commit to save to the database
         db.session.add(new_customer)
         db.session.commit()
         print('Customer added succesfully')
         return redirect(url_for('customers.list_customers'))
+
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({'Error': str(e)}), 400
+
     except Exception as e:
         # Handle any exceptions, such as database errors
         db.session.rollback()
@@ -85,14 +91,19 @@ def edit_customer(customer_id):
         data = request.form
 
         # Update customer details
-        customer.name = data['name']
-        customer.city = data['city']
+        customer.name = validate_text(data['name'])
+        customer.city = validate_text(data['city'])
         customer.age = data['age']
 
         # Commit the changes to the database
         db.session.commit()
         print('Customer updated succesfully')
         return redirect(url_for('customers.list_customers'))
+
+    except (ValueError, KeyError) as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
     except Exception as e:
         # Handle any exceptions
         db.session.rollback()

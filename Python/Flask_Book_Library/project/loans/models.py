@@ -1,3 +1,4 @@
+from project.validators import validate_text
 from project import db , app
 
 
@@ -15,13 +16,13 @@ class Loan(db.Model):
     original_book_type = db.Column(db.String(64), nullable=False)
 
     def __init__(self, customer_name, book_name, loan_date, return_date, original_author, original_year_published, original_book_type):
-        self.customer_name = customer_name
-        self.book_name = book_name
+        self.customer_name = validate_text(customer_name)
+        self.book_name = validate_text(book_name)
         self.loan_date = loan_date
         self.return_date = return_date
-        self.original_author = original_author
+        self.original_author = validate_text(original_author)
         self.original_year_published = original_year_published
-        self.original_book_type = original_book_type
+        self.original_book_type = validate_text(original_book_type)
 
     def __repr__(self):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"
