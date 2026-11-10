@@ -32,7 +32,12 @@ def list_books_json():
 def create_book():
     data = request.get_json()
 
-    new_book = Book(name=data['name'], author=data['author'], year_published=data['year_published'], book_type=data['book_type'])
+    try:
+        # Book model validates every field and raises ValueError on invalid input
+        new_book = Book(name=data.get('name'), author=data.get('author'), year_published=data.get('year_published'), book_type=data.get('book_type'))
+    except ValueError as e:
+        print('Invalid book data')
+        return jsonify({'error': str(e)}), 400
 
     try:
         # Add the new book to the session and commit to save to the database
@@ -72,6 +77,11 @@ def edit_book(book_id):
         db.session.commit()
         print('Book edited successfully')
         return jsonify({'message': 'Book updated successfully'})
+    except ValueError as e:
+        # Raised by Book model validators on invalid input
+        db.session.rollback()
+        print('Invalid book data')
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
         # Handle any exceptions
         db.session.rollback()
