@@ -35,9 +35,8 @@ def create_customer():
         print('Invalid form data')
         return jsonify({'error': 'Invalid form data'}), 400
 
-    new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
-
     try:
+        new_customer = Customer(name=data['name'], city=data['city'], age=data['age'])
         # Add the new customer to the session and commit to save to the database
         db.session.add(new_customer)
         db.session.commit()

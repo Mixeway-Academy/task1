@@ -1,5 +1,9 @@
 from project import db, app
+from sqlalchemy.orm import validates
 import re
+
+BOOK_NAME_REGEX = re.compile(r"^[\w\s.,'\-:!?()]{1,64}$")
+AUTHOR_REGEX = re.compile(r"^[^\W\d_](?:[^\W\d_]|\s|[.,'\-]){0,63}$")
 
 
 # Book model
@@ -18,6 +22,18 @@ class Book(db.Model):
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
+
+    @validates('name')
+    def validate_name(self, key, value):
+        if not isinstance(value, str) or not BOOK_NAME_REGEX.match(value.strip()):
+            raise ValueError("Invalid book name")
+        return value.strip()
+
+    @validates('author')
+    def validate_author(self, key, value):
+        if not isinstance(value, str) or not AUTHOR_REGEX.match(value.strip()):
+            raise ValueError("Invalid author name")
+        return value.strip()
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
