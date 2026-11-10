@@ -85,12 +85,14 @@ def create_loan():
 
             # Redirect to the list of loans
             return redirect(url_for('loans.list_loans'))
-        except Exception as e:
+        
+        except ValueError as e:
             db.session.rollback()
-            error_message = f'Error creating loan: {str(e)}'
-            # Log the error message
-            print('Error creating loan:', error_message)
-            return jsonify({'error': error_message}), 500
+            return jsonify({'error': str(e)}), 400
+
+        except Exception:
+            db.session.rollback()
+            return jsonify({'error': 'An unexpected error occurred'}), 500
 
     # GET request, render the form
     print('GET request, render the form')

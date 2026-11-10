@@ -1,5 +1,5 @@
 from project import db, app
-import re
+from project.validators import validate_text
 
 
 # Book model
@@ -13,8 +13,8 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        self.name = validate_text(name, "Name")
+        self.author = validate_text(author, "Author")
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
