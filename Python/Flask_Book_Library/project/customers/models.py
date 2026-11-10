@@ -1,3 +1,4 @@
+from sqlalchemy.orm import validates
 from project import db, app
 
 
@@ -13,6 +14,12 @@ class Customer(db.Model):
         self.name = name
         self.city = city
         self.age = age
+
+    @validates('name', 'city')
+    def validate_text(self, key, value):
+        if '<' in value or '>' in value:
+            raise ValueError('Characters < and > are not allowed.')
+        return value
 
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"
