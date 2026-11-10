@@ -1,4 +1,7 @@
+from sqlalchemy.orm import validates
+
 from project import db , app
+from project.loans.validators import LOAN_VALIDATORS, validate_loan_period
 
 
 # Loan model
@@ -22,6 +25,12 @@ class Loan(db.Model):
         self.original_author = original_author
         self.original_year_published = original_year_published
         self.original_book_type = original_book_type
+        validate_loan_period(self.loan_date, self.return_date)
+
+    @validates('customer_name', 'book_name', 'loan_date', 'return_date',
+               'original_author', 'original_year_published', 'original_book_type')
+    def _validate_field(self, key, value):
+        return LOAN_VALIDATORS[key](value)
 
     def __repr__(self):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"

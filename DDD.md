@@ -2,7 +2,7 @@
 
 Zadanie 1 obejmowało realizację projekt wybranych elementów domeny systemu bankowego z wykorzystaniem podejścia Domain-Driven Design (DDD) w kontekście koncepcji Security by Design. Głównym celem było zademonstrowanie, jak prawidłowo skonstruowane agregaty, obiekty wartości (Domain Primitives) oraz warstwa antykorupcyjna (ACL) zapobiegają błędom logiki biznesowej. Model skupia się na najważniejszym aspekcie dziedziny bankowej: inicjacji oraz realizacji przelewu pieniężnego między rachunkami, przy jednoczesnym zachowaniu pełnej spójności i samowalidacji obiektów.
 
-W systemie bankowym wyodrębniono trzy podstawowe konteksty ograniczone (Bounded Contexts):
+W systemie bankowym wyodrębniono trzy podstawowe *Bounded Contexts*:
 Kontekst Tożsamości i Uwierzytelniania (Identity & Auth Context)
 Kontekst Zarządzania Kontami (Account Management Context)
 Kontekst Realizacji Przelewów (Transfer Execution Context) – główny kontekst analizy
@@ -60,7 +60,7 @@ Kontekst Realizacji Przelewów (Transfer Execution Context) – główny konteks
   3. Konwersja surowego payloadu JSON na bezpieczny typ domenowy `PaymentConfirmation`.
 * **Efekt dla bezpieczeństwa:** Izolacja wnętrza domeny przed wstrzykiwaniem sfałszowanych statusów transakcji przez osoby trzecie.
 
-## 6. Integracja pomiędzy obiektami i kontekstami
+## Integracja pomiędzy obiektami i kontekstami
 
 * **Luźna komunikacja między agregatami (Referencja po ID):**
   * Agregat `Przelew` nie przechowuje bezpośredniego wskaźnika do obiektu `KontoBankowe`.

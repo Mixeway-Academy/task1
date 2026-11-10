@@ -1,0 +1,43 @@
+python -m unittest discover -s tests -v
+
+test_invalid_authors_are_rejected (test_book_validators.AuthorValidatorTests.test_invalid_authors_are_rejected) ... ok
+test_valid_authors_are_accepted (test_book_validators.AuthorValidatorTests.test_valid_authors_are_accepted) ... ok
+test_invalid_book_types_are_rejected (test_book_validators.ChoiceValidatorTests.test_invalid_book_types_are_rejected) ... ok
+test_invalid_statuses_are_rejected (test_book_validators.ChoiceValidatorTests.test_invalid_statuses_are_rejected) ... ok
+test_valid_book_types_are_accepted (test_book_validators.ChoiceValidatorTests.test_valid_book_types_are_accepted) ... ok
+test_valid_statuses_are_accepted (test_book_validators.ChoiceValidatorTests.test_valid_statuses_are_accepted) ... ok
+test_every_book_field_has_a_validator (test_book_validators.ModuleContractTests.test_every_book_field_has_a_validator) ... ok
+test_validation_error_is_a_value_error (test_book_validators.ModuleContractTests.test_validation_error_is_a_value_error) ... ok
+test_malformed_input_is_rejected (test_book_validators.NameValidatorTests.test_malformed_input_is_rejected) ... ok
+test_maximum_length_is_accepted (test_book_validators.NameValidatorTests.test_maximum_length_is_accepted) ... ok
+test_valid_names_are_accepted_unchanged (test_book_validators.NameValidatorTests.test_valid_names_are_accepted_unchanged) ... ok
+test_whitespace_is_trimmed_and_collapsed (test_book_validators.NameValidatorTests.test_whitespace_is_trimmed_and_collapsed) ... ok
+test_xss_payloads_are_rejected (test_book_validators.NameValidatorTests.test_xss_payloads_are_rejected) ... ok
+test_invalid_years_are_rejected (test_book_validators.YearValidatorTests.test_invalid_years_are_rejected) ... ok
+test_valid_years_are_accepted (test_book_validators.YearValidatorTests.test_valid_years_are_accepted) ... ok
+test_invalid_ages_are_rejected (test_customer_validators.AgeTests.test_invalid_ages_are_rejected) ... ok
+test_valid_ages_are_accepted (test_customer_validators.AgeTests.test_valid_ages_are_accepted) ... ok
+test_invalid_cities_are_rejected (test_customer_validators.CityTests.test_invalid_cities_are_rejected) ... ok
+test_valid_cities_are_accepted (test_customer_validators.CityTests.test_valid_cities_are_accepted) ... ok
+test_malformed_input_is_rejected (test_customer_validators.CustomerNameTests.test_malformed_input_is_rejected) ... ok
+test_valid_names_are_accepted (test_customer_validators.CustomerNameTests.test_valid_names_are_accepted) ... ok
+test_whitespace_is_trimmed_and_collapsed (test_customer_validators.CustomerNameTests.test_whitespace_is_trimmed_and_collapsed) ... ok
+test_xss_payloads_are_rejected (test_customer_validators.CustomerNameTests.test_xss_payloads_are_rejected) ... ok
+test_every_customer_field_has_a_validator (test_customer_validators.ModuleContractTests.test_every_customer_field_has_a_validator) ... ok
+test_invalid_dates_are_rejected (test_loan_validators.LoanDateTests.test_invalid_dates_are_rejected) ... ok
+test_valid_dates_are_accepted_unchanged (test_loan_validators.LoanDateTests.test_valid_dates_are_accepted_unchanged) ... ok
+test_non_dates_are_rejected (test_loan_validators.LoanPeriodTests.test_non_dates_are_rejected) ... ok
+test_return_before_loan_date_is_rejected (test_loan_validators.LoanPeriodTests.test_return_before_loan_date_is_rejected) ... ok
+test_return_on_or_after_loan_date_is_accepted (test_loan_validators.LoanPeriodTests.test_return_on_or_after_loan_date_is_accepted) ... ok
+test_error_message_names_the_loan_field (test_loan_validators.LoanTextFieldTests.test_error_message_names_the_loan_field) ... ok
+test_invalid_year_and_type_are_rejected (test_loan_validators.LoanTextFieldTests.test_invalid_year_and_type_are_rejected) ... ok
+test_valid_values_are_accepted (test_loan_validators.LoanTextFieldTests.test_valid_values_are_accepted) ... ok
+test_xss_payloads_are_rejected_in_every_text_field (test_loan_validators.LoanTextFieldTests.test_xss_payloads_are_rejected_in_every_text_field) ... ok
+test_every_loan_field_has_a_validator (test_loan_validators.ModuleContractTests.test_every_loan_field_has_a_validator) ... ok
+test_loan_init_checks_the_loan_period (test_model_writing.ModelWiringTests.test_loan_init_checks_the_loan_period) ... ok
+test_validates_hook_covers_every_column_and_validator (test_model_writing.ModelWiringTests.test_validates_hook_covers_every_column_and_validator) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.013s
+
+OK
