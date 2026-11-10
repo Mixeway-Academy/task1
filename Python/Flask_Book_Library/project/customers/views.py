@@ -43,11 +43,14 @@ def create_customer():
         db.session.commit()
         print('Customer added succesfully')
         return redirect(url_for('customers.list_customers'))
-    except Exception as e:
-        # Handle any exceptions, such as database errors
+    
+    except ValueError as e:
         db.session.rollback()
-        print('Error creating customer')
-        return jsonify({'error': f'Error creating customer: {str(e)}'}), 500
+        return jsonify({'error': str(e)}), 400
+
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'An unexpected error occurred'}), 500
 
 
 # Route to fetch customer data for editing

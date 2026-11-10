@@ -40,11 +40,14 @@ def create_book():
         db.session.commit()
         print('Book added successfully')
         return redirect(url_for('books.list_books'))
-    except Exception as e:
-        # Handle any exceptions, such as database errors
+    
+    except ValueError as e:
         db.session.rollback()
-        print('Error creating book')
-        return jsonify({'error': f'Error creating book: {str(e)}'}), 500
+        return jsonify({'error': str(e)}), 400
+
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'An unexpected error occurred'}), 500
 
 
 # Route to update an existing book
@@ -72,11 +75,14 @@ def edit_book(book_id):
         db.session.commit()
         print('Book edited successfully')
         return jsonify({'message': 'Book updated successfully'})
-    except Exception as e:
-        # Handle any exceptions
+    
+    except ValueError as e:
         db.session.rollback()
-        print('Error updating book')
-        return jsonify({'error': f'Error updating book: {str(e)}'}), 500
+        return jsonify({'error': str(e)}), 400
+
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'An unexpected error occurred'}), 500
 
 
 # Route to fetch existing book data for editing
