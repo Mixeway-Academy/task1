@@ -11,7 +11,8 @@ app.config['SECRET_KEY'] = 'supersecret' # To allow us to use forms
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'data.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL', 'sqlite:///'+os.path.join(basedir, 'data.sqlite'))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

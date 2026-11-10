@@ -1,4 +1,6 @@
 from project import db , app
+from sqlalchemy.orm import validates
+from project.validation import validate_text
 
 
 # Loan model
@@ -22,6 +24,10 @@ class Loan(db.Model):
         self.original_author = original_author
         self.original_year_published = original_year_published
         self.original_book_type = original_book_type
+
+    @validates('customer_name', 'book_name', 'original_author')
+    def validate_text_field(self, key, value):
+        return validate_text(key, value)
 
     def __repr__(self):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"
