@@ -1,4 +1,7 @@
+from sqlalchemy.orm import validates
+
 from project import db, app
+from project.customers.validators import CUSTOMER_VALIDATORS
 
 
 # Customer model
@@ -13,6 +16,10 @@ class Customer(db.Model):
         self.name = name
         self.city = city
         self.age = age
+
+    @validates('name', 'city', 'age')
+    def _validate_field(self, key, value):
+        return CUSTOMER_VALIDATORS[key](value)
 
     def __repr__(self):
         return f"Customer(ID: {self.id}, Name: {self.name}, City: {self.city}, Age: {self.age})"
