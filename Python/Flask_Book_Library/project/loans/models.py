@@ -1,3 +1,4 @@
+from sqlalchemy.orm import validates
 from project import db , app
 
 
@@ -22,6 +23,12 @@ class Loan(db.Model):
         self.original_author = original_author
         self.original_year_published = original_year_published
         self.original_book_type = original_book_type
+
+    @validates('customer_name', 'book_name', 'original_author')
+    def validate_text(self, key, value):
+        if '<' in value or '>' in value:
+            raise ValueError('Characters < and > are not allowed.')
+        return value
 
     def __repr__(self):
         return f"Customer: {self.customer_name}, Book: {self.book_name}, Loan Date: {self.loan_date}, Return Date: {self.return_date}"
