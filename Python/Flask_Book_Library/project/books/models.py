@@ -1,5 +1,6 @@
 from project import db, app
-import re
+from project.check_text import check_text
+from sqlalchemy.orm import validates
 
 
 # Book model
@@ -18,6 +19,10 @@ class Book(db.Model):
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
+
+    @validates('name', 'author')
+    def validate_name_and_author(self, key, value):
+        return check_text(value, max_len=64)
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"

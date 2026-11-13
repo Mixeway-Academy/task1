@@ -7,8 +7,14 @@ WORKDIR /app
 # Kopiujemy pliki projektu do kontenera
 COPY . .
 
-# Instalujemy zależności
-RUN pip install --no-cache-dir -r requirements.txt
+# Instalujemy zależności oraz pytest do walidacji bezpieczeństwa w buildzie
+RUN pip install --no-cache-dir -r requirements.txt && pip install --no-cache-dir pytest
+
+# Ustawiamy PYTHONPATH, aby pytest widział pakiet project
+ENV PYTHONPATH=/app
+
+# Uruchamiamy testy przed startem aplikacji, aby wykryć XSS w buildzie
+RUN python -m pytest -q
 
 # Ustawiamy zmienną środowiskową, aby Flask wiedział, jak uruchomić aplikację
 ENV FLASK_APP=app.py
