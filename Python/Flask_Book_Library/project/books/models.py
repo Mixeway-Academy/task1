@@ -1,6 +1,7 @@
+from sqlalchemy.orm import validates
 from project import db, app
 import re
-
+from project.validators import validate_text, validate_title, validate_year, validate_book_type
 
 # Book model
 class Book(db.Model):
@@ -18,6 +19,22 @@ class Book(db.Model):
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
+
+    @validates('name')
+    def _validate_name(self, key, value):
+        return validate_title(value, key)
+
+    @validates('author')
+    def _validate_author(self, key, value):
+        return validate_text(value, key)
+
+    @validates('year_published')
+    def _validate_year(self, key, value):
+        return validate_year(value)
+
+    @validates('book_type')
+    def _validate_book_type(self, key, value):
+        return validate_book_type(value)
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
